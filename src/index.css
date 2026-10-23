@@ -1,1 +1,78 @@
 @import 'tailwindcss';
+
+/*
+ * "Thermal" design tokens: receipt paper by day, "Night canteen" by night.
+ * Components use these through Tailwind, e.g. bg-paper, text-ink, border-line.
+ */
+:root {
+  --page: #f3eee4;
+  --paper: #fffdf8;
+  --ink: #1c1b19;
+  --ink-soft: #625e55;
+  --line: #e2dacb;
+  --accent: #d9481f;
+  --accent-ink: #ffffff;
+  --owed: #1f7a45;
+  --owes: #b4361a;
+  --highlight: #ffe58a;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #141311;
+    --paper: #1f1d1a;
+    --ink: #f2eee6;
+    --ink-soft: #a8a297;
+    --line: #38342e;
+    --accent: #ff8a3d;
+    --accent-ink: #1c1b19;
+    --owed: #5fd08f;
+    --owes: #ff8f70;
+    --highlight: #6b5a12;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-owed: var(--owed);
+  --color-owes: var(--owes);
+  --color-highlight: var(--highlight);
+  --font-sans: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Money always lines up like a printed receipt. */
+.money {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Torn-paper bottom edge for receipt-style cards. */
+.receipt-edge {
+  --tooth: 8px;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--tooth)) 100%;
+  padding-bottom: calc(var(--tooth) + 0.75rem);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
