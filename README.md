@@ -30,7 +30,11 @@ npm run dev
 
 ## Team
 
-- Atharv Pratap Singh Chauhan (lead)
-- Nimitt Pamecha
-- Abhiraj Kumar
-- Abhinav Kaushal
+| Member | Role | Owns |
+|---|---|---|
+| **Atharv Pratap Singh Chauhan** | Team lead · Full-stack | App logic (splits, balances, settle-up), data storage, OCR and AI integration, core screens |
+| **Nimitt Pamecha** | Frontend developer | UI components, styling, accessibility |
+| **Abhiraj Kumar** | QA and test data lead | Real receipt dataset, device testing against all 9 test cases |
+| **Abhinav Kaushal** | Documentation and content lead | README, user guide, in-app text, demo script |
+
+SplitSmart has no server by design. All logic, storage and AI run on the user's device for privacy.
