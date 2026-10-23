@@ -1,12 +1,16 @@
+import { ExpenseForm } from './features/expenses/ExpenseForm'
+import { Dashboard } from './features/groups/Dashboard'
+import { GroupPage } from './features/groups/GroupPage'
+import { useRoute } from './lib/router'
+
 function App() {
-  return (
-    <main className="grid min-h-dvh place-items-center p-4">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">SplitSmart</h1>
-        <p className="mt-2 text-gray-600">Scan it. Tap it. Settled.</p>
-      </div>
-    </main>
-  )
+  const [section, groupId, sub, expenseId] = useRoute()
+
+  if (section === 'g' && groupId && sub === 'expense' && expenseId) {
+    return <ExpenseForm groupId={groupId} expenseId={expenseId === 'new' ? undefined : expenseId} />
+  }
+  if (section === 'g' && groupId) return <GroupPage groupId={groupId} />
+  return <Dashboard />
 }
 
 export default App
