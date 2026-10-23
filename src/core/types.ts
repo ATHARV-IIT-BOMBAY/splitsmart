@@ -64,6 +64,9 @@ export interface Settlement {
 export interface Group {
   id: string
   name: string
+  createdAt?: string
+  /** The member who uses this device, so the app can say "you owe". */
+  meId?: MemberId
   members: Member[]
   expenses: Expense[]
   settlements: Settlement[]
