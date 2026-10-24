@@ -88,3 +88,14 @@ dialog::backdrop {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* People who turn on "Reduce motion" get no press, slide or scan animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    translate: none !important;
+  }
+}
