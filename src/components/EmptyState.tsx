@@ -19,20 +19,20 @@ export default function EmptyState({
     <div className="relative flex flex-col items-center px-4 py-16 text-center">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-8 h-56 w-56 rounded-full bg-indigo-600/30 blur-3xl"
+        className="pointer-events-none absolute top-8 h-56 w-56 rounded-full bg-accent/20 blur-3xl"
       />
 
       <div
         aria-hidden="true"
-        className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/10 bg-white/5 text-5xl shadow-lg shadow-indigo-900/40"
+        className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-line bg-paper text-5xl"
       >
         💸
       </div>
 
-      <h2 className="relative mt-8 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+      <h2 className="relative mt-8 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
         {title}
       </h2>
-      <p className="relative mt-3 max-w-sm text-base leading-relaxed text-gray-400">
+      <p className="relative mt-3 max-w-sm text-base leading-relaxed text-ink-soft">
         {description}
       </p>
 
@@ -46,7 +46,7 @@ export default function EmptyState({
         <button
           type="button"
           onClick={onAction}
-          className="relative mt-8 cursor-pointer rounded-xl bg-indigo-600 px-7 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-600/30 transition hover:-translate-y-0.5 hover:bg-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 active:translate-y-0"
+          className="relative mt-8 cursor-pointer rounded-xl bg-accent px-7 py-3 text-base font-semibold text-accent-ink transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
         >
           {actionLabel}
         </button>
