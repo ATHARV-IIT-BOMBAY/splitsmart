@@ -9,6 +9,8 @@ interface GroupsState {
   renameGroup: (groupId: string, name: string) => void
   deleteGroup: (groupId: string) => void
   addMember: (groupId: string, name: string) => void
+  /** Change a member's name, colour, emoji or UPI ID. */
+  updateMember: (groupId: string, memberId: MemberId, changes: Partial<Omit<Member, 'id'>>) => void
   /** Returns a message instead of removing when the member is in use. */
   removeMember: (groupId: string, memberId: MemberId) => string | null
   saveExpense: (groupId: string, expense: Expense) => void
@@ -52,6 +54,12 @@ export const useGroups = create<GroupsState>()(
 
         addMember: (groupId, name) =>
           update(groupId, (g) => ({ ...g, members: [...g.members, newMember(name, g.members)] })),
+
+        updateMember: (groupId, memberId, changes) =>
+          update(groupId, (g) => ({
+            ...g,
+            members: g.members.map((m) => (m.id === memberId ? { ...m, ...changes } : m)),
+          })),
 
         removeMember(groupId, memberId) {
           const group = get().groups.find((g) => g.id === groupId)
