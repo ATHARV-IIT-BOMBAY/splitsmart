@@ -10,8 +10,12 @@
   --ink: #1c1b19;
   --ink-soft: #625e55;
   --line: #e2dacb;
-  --accent: #d9481f;
-  --accent-ink: #ffffff;
+  --accent: #ff6b3d;
+  --accent-ink: #1c1b19;
+  /* Soft brutalism: thick ink outlines and hard offset shadows */
+  --edge: #1c1b19;
+  --drop: #1c1b19;
+  --pop: #ffd84d;
   --owed: #1f7a45;
   --owes: #b4361a;
   --highlight: #ffe58a;
@@ -27,6 +31,9 @@
     --line: #38342e;
     --accent: #ff8a3d;
     --accent-ink: #1c1b19;
+    --edge: #f2eee6;
+    --drop: #000000;
+    --pop: #ffd84d;
     --owed: #5fd08f;
     --owes: #ff8f70;
     --highlight: #6b5a12;
@@ -45,12 +52,17 @@
   --color-owed: var(--owed);
   --color-owes: var(--owes);
   --color-highlight: var(--highlight);
+  --color-edge: var(--edge);
+  --color-pop: var(--pop);
   --font-sans: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 body {
-  background: var(--page);
+  background-color: var(--page);
+  /* Faint dot grid, like graph paper under the cards */
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 18px 18px;
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -75,4 +87,15 @@ dialog::backdrop {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* People who turn on "Reduce motion" get no press, slide or scan animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    translate: none !important;
+  }
 }

@@ -128,7 +128,7 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
 
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium">Split</legend>
-          <div className="grid grid-cols-4 gap-1 rounded-xl border border-line bg-paper p-1">
+          <div className="grid grid-cols-4 gap-1 rounded-xl border-2 border-edge bg-paper p-1">
             {MODES.map(({ mode, label }) => (
               <button
                 key={mode}
@@ -136,7 +136,7 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
                 aria-pressed={draft.mode === mode}
                 onClick={() => set({ mode, values: {} })}
                 className={`rounded-lg py-2 text-sm font-semibold transition ${
-                  draft.mode === mode ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'
+                  draft.mode === mode ? 'bg-pop text-[#1c1b19] ring-2 ring-edge' : 'text-ink-soft hover:text-ink'
                 }`}
               >
                 {label}

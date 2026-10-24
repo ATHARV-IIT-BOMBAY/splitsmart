@@ -36,7 +36,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
         ← All groups
       </a>
 
-      <header className={`${card} receipt-edge mt-2 p-5`}>
+      <header className={`${card} mt-2 p-5`}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-extrabold leading-tight">{group.name}</h1>
@@ -51,7 +51,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
         </div>
       </header>
 
-      <div role="tablist" aria-label="Group sections" className="mt-5 flex gap-1 rounded-xl bg-paper p-1 border border-line">
+      <div role="tablist" aria-label="Group sections" className="mt-5 flex gap-1 rounded-xl border-2 border-edge bg-paper p-1 shadow-[3px_3px_0_var(--drop)]">
         {TABS.map((t) => (
           <button
             key={t}
@@ -60,7 +60,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
             aria-selected={tab === t}
             onClick={() => setTab(t)}
             className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
-              tab === t ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink'
+              tab === t ? 'bg-pop text-[#1c1b19] ring-2 ring-edge' : 'text-ink-soft hover:text-ink'
             }`}
           >
             {t}
