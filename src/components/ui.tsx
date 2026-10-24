@@ -9,7 +9,7 @@ export function Avatar({ member, size = 32 }: { member: Member; size?: number })
     <span
       title={member.name}
       aria-hidden="true"
-      className="inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold text-[#1c1b19]"
+      className="inline-flex shrink-0 select-none items-center justify-center rounded-full border-2 border-edge font-bold text-[#1c1b19]"
       style={{ background: member.color, width: size, height: size, fontSize: size * 0.38 }}
     >
       {member.emoji ?? initials(member.name)}
@@ -22,7 +22,7 @@ export function AvatarStack({ members, max = 5 }: { members: Member[]; max?: num
   return (
     <span className="flex -space-x-2" aria-label={members.map((m) => m.name).join(', ')}>
       {members.slice(0, max).map((m) => (
-        <span key={m.id} className="rounded-full ring-2 ring-paper">
+        <span key={m.id} className="rounded-full">
           <Avatar member={m} size={28} />
         </span>
       ))}
@@ -71,7 +71,7 @@ export function Sheet({
       ref={ref}
       onClose={onClose}
       aria-label={title}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-paper p-0 text-ink"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border-2 border-edge bg-paper p-0 text-ink shadow-[6px_6px_0_var(--drop)]"
     >
       {open && (
         <div className="p-5">

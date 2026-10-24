@@ -1,19 +1,21 @@
 /** Shared Tailwind class strings, so every screen's controls look the same. */
+
+// Hard offset shadow + press-down effect: the button sinks into its shadow when tapped
+const chunky =
+  'inline-flex items-center justify-center gap-2 rounded-xl border-2 border-edge px-4 py-2.5 shadow-[3px_3px_0_var(--drop)] transition-[transform,box-shadow] duration-100 hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--drop)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none'
+
 export const button = {
-  primary:
-    'inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 font-semibold text-accent-ink transition active:scale-[0.98] hover:brightness-105',
-  secondary:
-    'inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-paper px-4 py-2.5 font-medium text-ink transition active:scale-[0.98] hover:bg-page',
+  primary: `${chunky} bg-accent font-bold text-accent-ink`,
+  secondary: `${chunky} bg-paper font-semibold text-ink`,
   ghost:
-    'inline-flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-ink-soft transition hover:bg-page hover:text-ink',
-  danger:
-    'inline-flex items-center justify-center gap-2 rounded-xl border border-owes/40 px-4 py-2.5 font-medium text-owes transition active:scale-[0.98] hover:bg-owes/10',
+    'inline-flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-sm font-semibold text-ink-soft transition hover:bg-page hover:text-ink',
+  danger: `${chunky} bg-paper font-semibold text-owes`,
 }
 
 /** Text field look without a width, for inputs that size themselves. */
 export const inputBase =
-  'rounded-xl border border-line bg-paper px-3 py-2.5 text-ink placeholder:text-ink-soft/70 focus:border-accent focus:outline-none'
+  'rounded-xl border-2 border-edge bg-paper px-3 py-2.5 text-ink placeholder:text-ink-soft/70 transition-shadow focus:shadow-[3px_3px_0_var(--accent)] focus:outline-none'
 
 export const input = `w-full ${inputBase}`
 
-export const card = 'rounded-2xl border border-line bg-paper'
+export const card = 'rounded-2xl border-2 border-edge bg-paper shadow-[4px_4px_0_var(--drop)]'
