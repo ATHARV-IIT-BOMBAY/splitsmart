@@ -4,6 +4,8 @@ Scan a hostel receipt, fix what the scanner got wrong, assign items to the peopl
 
 Built by **Team Web Architects** for Web Brawl GC 2026.
 
+**Live app:** https://atharv-iit-bombay.github.io/splitsmart/
+
 ## Why SplitSmart?
 
 What problem it solves: Splitting hostel bills by hand sucks. This app gets rid of the messy mental math, forgotten debts, and having to send those awkward WhatsApp reminders to your friends.
