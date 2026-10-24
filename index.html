@@ -17,6 +17,16 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
     />
     <title>SplitSmart</title>
+    <script>
+      // Apply the saved theme before the first paint (see src/lib/theme.ts)
+      try {
+        const t = localStorage.getItem('splitsmart:theme')
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.dataset.theme = t
+          document.querySelectorAll('meta[name="theme-color"]').forEach((m) => (m.content = t === 'dark' ? '#141311' : '#f3eee4'))
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

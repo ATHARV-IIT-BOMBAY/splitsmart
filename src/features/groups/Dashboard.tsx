@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EmptyState from '../../components/EmptyState'
+import { ThemeToggle } from '../../components/ThemeToggle'
 import { AvatarStack, Money } from '../../components/ui'
 import { button, card } from '../../components/styles'
 import { computeBalances } from '../../core/balances'
@@ -19,12 +20,13 @@ export function Dashboard() {
           <h1 className="text-3xl font-extrabold tracking-tight">SplitSmart</h1>
           <p className="text-ink-soft">Scan it. Tap it. Settled.</p>
         </div>
-        {groups.length > 0 && (
-          <button type="button" className={button.primary} onClick={() => setCreating(true)}>
-            + New group
-          </button>
-        )}
+        <ThemeToggle />
       </header>
+      {groups.length > 0 && (
+        <button type="button" className={`${button.primary} mb-5 w-full sm:w-auto`} onClick={() => setCreating(true)}>
+          + New group
+        </button>
+      )}
 
       {groups.length === 0 ? (
         <EmptyState
