@@ -69,7 +69,7 @@ export function BalancesPanel({ group }: { group: Group }) {
                     <span className="min-w-0 flex-1">
                       <span className="font-medium">{nameOf(t.from)}</span>
                       <span className="text-ink-soft"> pays </span>
-                      <span className="font-medium">{nameOf(t.to)}</span>
+                      <span className="font-medium">{t.to === group.meId ? 'you' : nameOf(t.to)}</span>
                     </span>
                     <Money paise={t.paise} className="text-lg font-semibold" />
                     <button
@@ -96,7 +96,7 @@ export function BalancesPanel({ group }: { group: Group }) {
             {group.settlements.map((s) => (
               <li key={s.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
                 <span className="flex-1">
-                  {nameOf(s.from)} paid {nameOf(s.to)} <Money paise={s.paise} />
+                  {nameOf(s.from)} paid {s.to === group.meId ? 'you' : nameOf(s.to)} <Money paise={s.paise} />
                 </span>
                 <button type="button" className={button.ghost} onClick={() => deleteSettlement(group.id, s.id)}>
                   Undo

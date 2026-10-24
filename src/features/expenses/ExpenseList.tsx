@@ -17,9 +17,14 @@ export function ExpenseList({ group }: { group: Group }) {
 
   return (
     <div className="space-y-4">
-      <a href={href('g', group.id, 'expense', 'new')} className={`${button.primary} w-full`}>
-        + Add expense
-      </a>
+      <div className="grid grid-cols-2 gap-2">
+        <a href={href('g', group.id, 'scan')} className={button.primary}>
+          Scan receipt
+        </a>
+        <a href={href('g', group.id, 'expense', 'new')} className={button.secondary}>
+          + Add manually
+        </a>
+      </div>
 
       {expenses.length === 0 ? (
         <p className="py-10 text-center text-ink-soft">No expenses yet. Add the first one.</p>
