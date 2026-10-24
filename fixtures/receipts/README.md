@@ -16,4 +16,8 @@ Real receipts we use to test the scanner. Each photo gets one row in the table b
 
 | File | Where it's from | Printed total (₹) | Notes (faded, rotated, no total, GST…) |
 |---|---|---|---|
-| receipt-01.jpg | | | |
+| receipt-01.jpg | Swiggy| 224| |
+|receipt-02.jpg|Zepto|136| |
+|receipt-03.jpg|Zepto|203.02| |
+|receipt-04.jpg|Lenskart|1015| |
+|receipt-05.jpg|Zomato|397.65| |
