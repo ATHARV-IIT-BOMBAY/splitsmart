@@ -1,22 +1,48 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { initials } from '../core/members'
 import { formatINR, type Paise } from '../core/money'
 import type { Member } from '../core/types'
 import { button } from './styles'
+import { avatarUri } from '../lib/avatars.ts'
 
-export function Avatar({ member, size = 32 }: { member: Member; size?: number }) {
+export function Avatar({
+  member,
+  size = 36,
+}: {
+  member: Pick<Member, 'name' | 'color' | 'emoji' | 'avatar'>
+  size?: number
+}) {
+  const fontSize = member.emoji ? size * 0.7 : size * 0.45
+
   return (
     <span
-      title={member.name}
-      aria-hidden="true"
-      className="inline-flex shrink-0 select-none items-center justify-center rounded-full border-2 border-edge font-bold text-[#1c1b19]"
-      style={{ background: member.color, width: size, height: size, fontSize: size * 0.38 }}
+      className="inline-grid shrink-0 select-none place-items-center overflow-hidden rounded-full"
+      style={{ width: size, height: size, backgroundColor: member.color }}
     >
-      {member.emoji ?? initials(member.name)}
+      {member.avatar ? (
+        <img
+          src={avatarUri(member.avatar.style, member.avatar.seed)}
+          alt=""
+          className="block h-full w-full object-cover"
+        />
+      ) : (
+        <span
+          style={{
+            fontSize,
+            lineHeight: 1,
+            width: fontSize,
+            height: fontSize,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: member.emoji ? `translateY(${size * 0.03}px)` : undefined,
+          }}
+        >
+          {member.emoji ?? member.name.charAt(0).toUpperCase()}
+        </span>
+      )}
     </span>
   )
 }
-
 export function AvatarStack({ members, max = 5 }: { members: Member[]; max?: number }) {
   const extra = members.length - max
   return (
