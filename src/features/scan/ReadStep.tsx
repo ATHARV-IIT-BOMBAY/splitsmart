@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { button } from '../../components/styles'
+import { FULL, type CropBox } from '../../core/imageops'
 import { parseReceipt, type OcrLine } from '../../core/parse'
-import { preparePhoto, type PreparedImage, type Rotation } from '../../lib/image'
+import { finish, orient, preparePhoto, suggestCrop, type PreparedImage, type Rotation } from '../../lib/image'
 import { readReceipt, type OcrProgress } from '../../lib/ocr'
 
-/** Preview with rotate buttons, then OCR with a scan-line animation and progress. */
+type Corner = 'tl' | 'tr' | 'bl' | 'br'
+const CORNERS: Corner[] = ['tl', 'tr', 'bl', 'br']
+/** Smallest crop, as a fraction of the photo, so the box can't collapse. */
+const MIN_CROP = 0.12
+
+/**
+ * Preview with rotate, straighten and crop (pre-set to where the receipt
+ * seems to be), then OCR with a scan-line animation and progress.
+ */
 export function ReadStep({
   photo,
   onDone,
@@ -15,25 +24,71 @@ export function ReadStep({
   onRetake: () => void
 }) {
   const [rotation, setRotation] = useState<Rotation>(0)
-  const [image, setImage] = useState<PreparedImage | null>(null)
+  const [straighten, setStraighten] = useState(0)
+  const [oriented, setOriented] = useState<{ canvas: HTMLCanvasElement; url: string } | null>(null)
+  const [crop, setCrop] = useState<CropBox>(() => suggestCrop(orient(photo, 0)))
+  const [autoCropped, setAutoCropped] = useState(crop !== FULL)
   const [progress, setProgress] = useState<OcrProgress | null>(null)
   const [error, setError] = useState('')
   const [turning, setTurning] = useState(false)
+  const frame = useRef<HTMLDivElement>(null)
 
+  // Re-draw the photo whenever it's turned or straightened
   useEffect(() => {
+    const canvas = orient(photo, rotation, straighten)
+    let url = ''
     let cancelled = false
-    void preparePhoto(photo, rotation).then((prepared) => !cancelled && setImage(prepared))
+    canvas.toBlob((blob) => {
+      if (!blob || cancelled) return
+      url = URL.createObjectURL(blob)
+      setOriented({ canvas, url })
+    }, 'image/jpeg', 0.85)
     return () => {
       cancelled = true
+      if (url) URL.revokeObjectURL(url)
     }
-  }, [photo, rotation])
+  }, [photo, rotation, straighten])
+
+  function drag(corner: Corner) {
+    return (event: PointerEvent<HTMLSpanElement>) => {
+      event.preventDefault()
+      const handle = event.currentTarget
+      try {
+        handle.setPointerCapture(event.pointerId) // keep getting moves when the finger leaves the dot
+      } catch {
+        // Some browsers refuse capture for synthetic or cancelled pointers; dragging still works
+      }
+      const move = (e: globalThis.PointerEvent) => {
+        const rect = frame.current?.getBoundingClientRect()
+        if (!rect) return
+        const fx = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
+        const fy = Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height))
+        setCrop((c) => ({
+          x0: corner[1] === 'l' ? Math.min(fx, c.x1 - MIN_CROP) : c.x0,
+          x1: corner[1] === 'r' ? Math.max(fx, c.x0 + MIN_CROP) : c.x1,
+          y0: corner[0] === 't' ? Math.min(fy, c.y1 - MIN_CROP) : c.y0,
+          y1: corner[0] === 'b' ? Math.max(fy, c.y0 + MIN_CROP) : c.y1,
+        }))
+        setAutoCropped(false)
+      }
+      const stop = () => {
+        handle.removeEventListener('pointermove', move)
+        handle.removeEventListener('pointerup', stop)
+        handle.removeEventListener('pointercancel', stop)
+      }
+      handle.addEventListener('pointermove', move)
+      handle.addEventListener('pointerup', stop)
+      handle.addEventListener('pointercancel', stop)
+    }
+  }
 
   async function read() {
-    if (!image) return
+    if (!oriented) return
     setError('')
     setTurning(false)
     setProgress({ stage: 'loading', progress: 0 })
     try {
+      const image = await finish(oriented.canvas, crop)
       const lines = await readReceipt(image.ocrCanvas, setProgress)
       if (parseReceipt(lines).items.length > 0) return onDone(image, lines)
       // Nothing found: the photo may be upside down or sideways, so try the other ways round
@@ -58,24 +113,56 @@ export function ReadStep({
     }
   }
 
-  const rotate = (by: 90 | -90) => setRotation((r) => (((r + by + 360) % 360) as Rotation))
+  // Turning the photo moves the receipt, so suggest a fresh crop
+  function rotate(by: 90 | -90) {
+    const next = ((rotation + by + 360) % 360) as Rotation
+    const box = suggestCrop(orient(photo, next))
+    setRotation(next)
+    setCrop(box)
+    setAutoCropped(box !== FULL)
+  }
   const reading = progress !== null
   const percent = Math.round((progress?.progress ?? 0) * 100)
+  const pct = (v: number) => `${v * 100}%`
 
   return (
     <div className="space-y-4">
-      <div className="relative mx-auto w-fit max-w-full overflow-hidden rounded-2xl border border-line bg-paper">
-        {image ? (
-          <img src={image.url} alt="Receipt photo" className="max-h-[60vh] w-auto" />
+      <div className="mx-auto w-fit max-w-full overflow-hidden rounded-2xl border-2 border-edge bg-paper">
+        {oriented ? (
+          <div ref={frame} className="relative touch-none select-none">
+            <img src={oriented.url} alt="Receipt photo" draggable={false} className="block max-h-[60vh] w-auto" />
+            {/* Crop box: everything outside is dimmed; drag the corners to adjust */}
+            <div
+              className="absolute border-2 border-accent"
+              style={{
+                left: pct(crop.x0),
+                top: pct(crop.y0),
+                width: pct(crop.x1 - crop.x0),
+                height: pct(crop.y1 - crop.y0),
+                boxShadow: '0 0 0 9999px rgb(0 0 0 / 0.45)',
+              }}
+            >
+              {reading && progress.stage === 'reading' && (
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-x-0 h-1 bg-accent shadow-[0_0_16px_4px_var(--accent)] transition-[top] duration-300"
+                  style={{ top: `${percent}%` }}
+                />
+              )}
+              {!reading &&
+                CORNERS.map((corner) => (
+                  <span
+                    key={corner}
+                    aria-hidden="true"
+                    onPointerDown={drag(corner)}
+                    className="absolute size-7 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-edge bg-accent"
+                    style={{ left: corner[1] === 'l' ? 0 : '100%', top: corner[0] === 't' ? 0 : '100%' }}
+                  />
+                ))}
+            </div>
+          </div>
         ) : (
           <div className="grid h-64 w-64 place-items-center text-ink-soft">Preparing photo…</div>
-        )}
-        {reading && progress.stage === 'reading' && (
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-0 h-1 bg-accent shadow-[0_0_16px_4px_var(--accent)] transition-[top] duration-300"
-            style={{ top: `${percent}%` }}
-          />
         )}
       </div>
 
@@ -98,19 +185,44 @@ export function ReadStep({
         </div>
       ) : (
         <>
-          <div className="flex justify-center gap-2">
+          <p className="text-center text-sm text-ink-soft">
+            {autoCropped ? 'Cropped to the receipt. Drag the corners to adjust.' : 'Drag the corners to crop to the receipt.'}
+          </p>
+          <label className="mx-auto flex max-w-sm items-center gap-3 text-sm">
+            <span className="shrink-0 font-semibold">Straighten</span>
+            <input
+              type="range"
+              min={-45}
+              max={45}
+              step={1}
+              value={straighten}
+              onChange={(e) => setStraighten(Number(e.target.value))}
+              className="flex-1 accent-[var(--accent)]"
+            />
+            <span className="w-10 shrink-0 text-right font-mono">{straighten}°</span>
+          </label>
+          <div className="flex flex-wrap justify-center gap-2">
             <button type="button" className={button.secondary} onClick={() => rotate(-90)} aria-label="Rotate left">
               ↺ Rotate
             </button>
             <button type="button" className={button.secondary} onClick={() => rotate(90)} aria-label="Rotate right">
               Rotate ↻
             </button>
+            <button
+              type="button"
+              className={button.secondary}
+              onClick={() => {
+                setCrop(FULL)
+                setAutoCropped(false)
+              }}
+            >
+              Whole photo
+            </button>
             <button type="button" className={button.secondary} onClick={onRetake}>
               Retake
             </button>
           </div>
-          <p className="text-center text-sm text-ink-soft">Turn the photo so the text reads left to right.</p>
-          <button type="button" className={`${button.primary} w-full`} onClick={read} disabled={!image}>
+          <button type="button" className={`${button.primary} w-full`} onClick={read} disabled={!oriented}>
             Read receipt
           </button>
           {error && (
