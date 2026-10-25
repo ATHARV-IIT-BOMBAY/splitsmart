@@ -1,0 +1,25 @@
+# Test report
+
+The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit-bombay.github.io/splitsmart/
+
+**How to fill this in:** do each test on your phone, then write what happened in plain words. Put ✅ if it worked, ❌ if it broke, ⚠️ if it worked but was confusing. Add a screenshot to `docs/screenshots/` if something broke.
+
+**Tested on:** _phone model_, _browser (Chrome / Firefox / Safari)_, _date_
+
+| # | Test | What to do | What should happen | What happened | Result |
+|---|---|---|---|---|---|
+| 1 | Clear printed bill with GST | Scan a clear restaurant bill | Items, tax and total read with few fixes | | |
+| 2 | Faded thermal receipt | Scan a faded canteen slip | Unsure words highlighted yellow; you can fix them | | |
+| 3 | Rotated photo | Take the photo sideways or upside down | Still reads it, or offers Rotate / Retake | | |
+| 4 | Not a receipt | Scan a selfie or a wall | "No items found" with Retake / Type items | | |
+| 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | | |
+| 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | | |
+| 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works | | |
+| 8 | Offline | Open the app once, turn on airplane mode, reopen | App opens with saved groups | | |
+| 9 | 5 people, 10 expenses | Make a group of 5, add 10 expenses, different payers | Settle up shows the fewest payments | | |
+
+## Bugs found
+
+| What I did | What went wrong | Phone and browser | Screenshot |
+|---|---|---|---|
+| | | | |
