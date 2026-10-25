@@ -16,13 +16,13 @@ Real receipts we use to test the scanner. Each photo gets one row in the table b
 
 | File | Where it's from | Printed total (₹) | Notes (faded, rotated, no total, GST…) |
 |---|---|---|---|
-| receipt-01.jpg | Swiggy| 224| |
+| receipt-01.jpeg | Swiggy| 224| |
 |receipt-02.jpg|Zepto|136| |
 |receipt-03.jpg|Zepto|203.02| |
-|receipt-04.jpg|Lenskart|1015| |
-|receipt-05.jpg|Zomato|397.65| |
-|receipt-06.jpg|Gulmohar|3240| |
-|receipt-07.jpg|Zomato|1811|rotated|
-|receipt-08.jpg|H2 Canteen|253| |
-|receipt-09.jpg|Gulmohar|2286| |
-|receipt-10.jpg|Aromas|216|faded|
+|receipt-04.jpeg|Lenskart|1015| |
+|receipt-05.jpeg|Zomato|397.65| |
+|receipt-06.jpeg|Gulmohar|3240| |
+|receipt-07.jpeg|Dominos|1811|rotated|
+|receipt-08.jpeg|H2 Canteen|253| |
+|receipt-09.jpeg|Gulmohar|2286| |
+|receipt-10.jpeg|Aromas|216|faded|
