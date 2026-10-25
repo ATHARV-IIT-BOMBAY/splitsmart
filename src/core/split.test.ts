@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeShares, validateExpense } from './split'
+import { computeShares, itemizedBreakdown, validateExpense } from './split'
 import type { Expense, Split } from './types'
 
 const members = ['riya', 'arjun', 'meera', 'kabir']
@@ -74,6 +74,16 @@ describe('itemized split (the judges’ ₹840 night canteen bill)', () => {
   it('splits GST in proportion to what each person ate', () => {
     expect(computeShares(canteen, members)).toEqual({ riya: 22050, arjun: 16800, meera: 28350, kabir: 16800 })
     expect(validateExpense(canteen)).toEqual([])
+  })
+
+  it('explains each share: Meera had ₹270 of items and pays ₹13.50 of the GST', () => {
+    const meera = itemizedBreakdown(canteen, members).meera
+    expect(meera.items).toEqual([
+      { name: 'Large pizza', paise: 10000, sharedWith: 4 },
+      { name: 'Cold coffee', paise: 12000, sharedWith: 1 },
+      { name: 'Garlic bread', paise: 5000, sharedWith: 2 },
+    ])
+    expect([meera.itemsPaise, meera.chargesPaise, meera.totalPaise]).toEqual([27000, 1350, 28350])
   })
 
   it('spreads a discount proportionally and still adds up exactly', () => {

@@ -65,6 +65,23 @@ export function draftFromParsed(parsed: ParsedReceipt): ScanDraft {
   }
 }
 
+/** Back from a saved receipt to an editable draft (no photo; totals as saved). */
+export function draftFromExpense(expense: Expense): ScanDraft {
+  if (expense.split.mode !== 'itemized') return { items: [], charges: [], printedTotal: '' }
+  return {
+    items: expense.split.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      qty: String(item.qty),
+      unit: text(item.unitPaise),
+      total: text(item.totalPaise),
+      assignees: item.assignees,
+    })),
+    charges: expense.split.charges.map((c) => ({ id: c.id, label: c.label, kind: c.kind, amount: text(c.paise) })),
+    printedTotal: text(expense.amountPaise),
+  }
+}
+
 export const emptyItem = (): ItemRow => ({ id: id(), name: '', qty: '1', unit: '', total: '', assignees: [] })
 export const emptyCharge = (): ChargeRow => ({ id: id(), label: 'Tax', kind: 'tax', amount: '' })
 

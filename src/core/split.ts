@@ -38,22 +38,50 @@ export function itemsSubtotal(items: readonly Item[]): Paise {
  * 2. tax, service charge, discounts etc. are split in proportion to what
  *    each person's items cost (₹600 of a ₹1,000 bill pays 60% of the tax).
  */
-function itemizedShares(
+export interface PersonBreakdown {
+  /** Each item this person had, with their portion of it. */
+  items: { name: string; paise: Paise; sharedWith: number }[]
+  itemsPaise: Paise
+  /** Their proportional share of tax, service charge, discounts… */
+  chargesPaise: Paise
+  totalPaise: Paise
+}
+
+function itemizedBreakdownWith(
   expense: Expense & { split: { mode: 'itemized' } },
   priority: readonly MemberId[],
-): Shares {
+): Record<MemberId, PersonBreakdown> {
   const { items, charges } = expense.split
-  const subtotals: Shares = {}
+  const people: Record<MemberId, PersonBreakdown> = {}
   for (const item of items) {
     const portions = allocateTo(item.totalPaise, item.assignees, item.assignees.map(() => 1), priority)
-    for (const [id, paise] of Object.entries(portions)) subtotals[id] = (subtotals[id] ?? 0) + paise
+    for (const [id, paise] of Object.entries(portions)) {
+      people[id] ??= { items: [], itemsPaise: 0, chargesPaise: 0, totalPaise: 0 }
+      people[id].items.push({ name: item.name, paise, sharedWith: item.assignees.length })
+      people[id].itemsPaise += paise
+    }
   }
 
-  const ids = Object.keys(subtotals)
+  const ids = Object.keys(people)
   const chargesTotal = charges.reduce((sum, c) => sum + c.paise, 0)
   // Split all charges in one go so rounding happens once, not per charge.
-  const chargeShares = allocateTo(chargesTotal, ids, ids.map((id) => subtotals[id]), priority)
-  return Object.fromEntries(ids.map((id) => [id, subtotals[id] + chargeShares[id]]))
+  const chargeShares = allocateTo(chargesTotal, ids, ids.map((id) => people[id].itemsPaise), priority)
+  for (const id of ids) {
+    people[id].chargesPaise = chargeShares[id]
+    people[id].totalPaise = people[id].itemsPaise + chargeShares[id]
+  }
+  return people
+}
+
+/**
+ * Each person's share of an itemized bill, line by line:
+ * 1. every item is split equally among the people who had it;
+ * 2. tax, service charge, discounts etc. are split in proportion to what
+ *    each person's items cost (₹600 of a ₹1,000 bill pays 60% of the tax).
+ */
+export function itemizedBreakdown(expense: Expense, memberOrder: readonly MemberId[]): Record<MemberId, PersonBreakdown> {
+  if (expense.split.mode !== 'itemized') return {}
+  return itemizedBreakdownWith({ ...expense, split: expense.split }, tiePriority(expense, memberOrder))
 }
 
 /**
@@ -77,8 +105,10 @@ export function computeShares(expense: Expense, memberOrder: readonly MemberId[]
       const ids = Object.keys(split.shares)
       return allocateTo(amountPaise, ids, ids.map((id) => split.shares[id]), priority)
     }
-    case 'itemized':
-      return itemizedShares({ ...expense, split }, priority)
+    case 'itemized': {
+      const people = itemizedBreakdownWith({ ...expense, split }, priority)
+      return Object.fromEntries(Object.entries(people).map(([id, p]) => [id, p.totalPaise]))
+    }
   }
 }
 

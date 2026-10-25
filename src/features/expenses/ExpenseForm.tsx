@@ -5,6 +5,7 @@ import { computeShares } from '../../core/split'
 import type { Group } from '../../core/types'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
+import { ReceiptExpense } from './ReceiptExpense'
 import { draftFromExpense, draftToExpense, newDraft, remainingLabel, type Draft, type ManualMode } from './draft'
 
 const MODES: { mode: ManualMode; label: string }[] = [
@@ -28,16 +29,7 @@ export function ExpenseForm({ groupId, expenseId }: { groupId: string; expenseId
       </main>
     )
   }
-  if (existing?.split.mode === 'itemized') {
-    return (
-      <main className="mx-auto max-w-xl px-4 py-16 text-center">
-        <p className="text-lg font-semibold">Receipt expenses are edited on the receipt screen.</p>
-        <a href={href('g', groupId)} className={`${button.secondary} mt-4`}>
-          Back to group
-        </a>
-      </main>
-    )
-  }
+  if (existing?.split.mode === 'itemized') return <ReceiptExpense group={group} expense={existing} />
   return <Form group={group} expenseId={expenseId} />
 }
 

@@ -14,18 +14,23 @@ export function AssignStep({
   usePrinted,
   onChange,
   onSave,
+  editing,
 }: {
   group: Group
   draft: ScanDraft
   usePrinted: boolean
   onChange: (draft: ScanDraft) => void
   onSave: (expense: Expense) => void
+  /** Set when re-assigning a receipt that was already saved. */
+  editing?: Expense
 }) {
   const memberIds = group.members.map((m) => m.id)
-  const [id] = useState(() => crypto.randomUUID())
-  const [title, setTitle] = useState('')
-  const [payer, setPayer] = useState<MemberId>(group.meId ?? memberIds[0])
-  const [date, setDate] = useState(today)
+  const [id] = useState(() => editing?.id ?? crypto.randomUUID())
+  const [title, setTitle] = useState(editing?.title ?? '')
+  const [payer, setPayer] = useState<MemberId>(
+    (editing && Object.keys(editing.paidBy)[0]) ?? group.meId ?? memberIds[0],
+  )
+  const [date, setDate] = useState(editing?.date ?? today())
   const [showProblems, setShowProblems] = useState(false)
 
   const meta = { id, title, date, payer, usePrinted }
