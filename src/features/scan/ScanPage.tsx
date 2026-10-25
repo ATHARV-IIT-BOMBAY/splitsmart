@@ -13,7 +13,7 @@ import { ReviewStep } from './ReviewStep'
 type Step =
   | { name: 'capture' }
   | { name: 'read'; photo: ImageBitmap }
-  | { name: 'nothing-found'; image: PreparedImage }
+  | { name: 'nothing-found'; image: PreparedImage; photo: ImageBitmap }
   | { name: 'review'; image: PreparedImage }
   | { name: 'assign'; image: PreparedImage; usePrinted: boolean }
 
@@ -37,10 +37,10 @@ export function ScanPage({ groupId }: { groupId: string }) {
     )
   }
 
-  function onRead(image: PreparedImage, lines: OcrLine[]) {
+  function onRead(photo: ImageBitmap, image: PreparedImage, lines: OcrLine[]) {
     const parsed = parseReceipt(lines)
     setDraft(draftFromParsed(parsed))
-    setStep(parsed.items.length > 0 ? { name: 'review', image } : { name: 'nothing-found', image })
+    setStep(parsed.items.length > 0 ? { name: 'review', image } : { name: 'nothing-found', image, photo })
   }
 
   const current = step.name === 'assign' ? 2 : step.name === 'review' ? 1 : 0
@@ -69,7 +69,11 @@ export function ScanPage({ groupId }: { groupId: string }) {
       {step.name === 'capture' && <CaptureStep onPhoto={(photo) => setStep({ name: 'read', photo })} />}
 
       {step.name === 'read' && (
-        <ReadStep photo={step.photo} onDone={onRead} onRetake={() => setStep({ name: 'capture' })} />
+        <ReadStep
+          photo={step.photo}
+          onDone={(image, lines) => onRead(step.photo, image, lines)}
+          onRetake={() => setStep({ name: 'capture' })}
+        />
       )}
 
       {step.name === 'nothing-found' && (
@@ -77,11 +81,14 @@ export function ScanPage({ groupId }: { groupId: string }) {
           <img src={step.image.url} alt="Your photo" className="mx-auto max-h-64 rounded-xl" />
           <p className="text-lg font-bold">No items found on this photo</p>
           <p className="text-sm text-ink-soft">
-            It may not be a receipt, or the text is too blurry or sideways. Retake it in good light, or type the items in.
+            We also tried it turned every way round. It may not be a receipt, or the text is too blurry. Retake it in good light, rotate it yourself, or type the items in.
           </p>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2">
             <button type="button" className={button.primary} onClick={() => setStep({ name: 'capture' })}>
               Retake
+            </button>
+            <button type="button" className={button.secondary} onClick={() => setStep({ name: 'read', photo: step.photo })}>
+              Rotate and try again
             </button>
             <button
               type="button"

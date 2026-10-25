@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { button } from '../../components/styles'
-import type { OcrLine } from '../../core/parse'
+import { parseReceipt, type OcrLine } from '../../core/parse'
 import { preparePhoto, type PreparedImage, type Rotation } from '../../lib/image'
 import { readReceipt, type OcrProgress } from '../../lib/ocr'
 
@@ -18,6 +18,7 @@ export function ReadStep({
   const [image, setImage] = useState<PreparedImage | null>(null)
   const [progress, setProgress] = useState<OcrProgress | null>(null)
   const [error, setError] = useState('')
+  const [turning, setTurning] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -30,9 +31,22 @@ export function ReadStep({
   async function read() {
     if (!image) return
     setError('')
+    setTurning(false)
     setProgress({ stage: 'loading', progress: 0 })
     try {
       const lines = await readReceipt(image.ocrCanvas, setProgress)
+      if (parseReceipt(lines).items.length > 0) return onDone(image, lines)
+      // Nothing found: the photo may be upside down or sideways, so try the other ways round
+      setTurning(true)
+      for (const turn of [180, 90, 270] as const) {
+        const turned = ((rotation + turn) % 360) as Rotation
+        const prepared = await preparePhoto(photo, turned)
+        const turnedLines = await readReceipt(prepared.ocrCanvas, setProgress)
+        if (parseReceipt(turnedLines).items.length > 0) {
+          setRotation(turned)
+          return onDone(prepared, turnedLines)
+        }
+      }
       onDone(image, lines)
     } catch {
       setProgress(null)
@@ -76,7 +90,9 @@ export function ReadStep({
           <p className="text-center text-sm text-ink-soft">
             {progress.stage === 'loading'
               ? 'Getting the text reader ready (only slow the first time)…'
-              : `Reading text · ${percent}%`}
+              : turning
+                ? `No items yet. Trying the photo turned around · ${percent}%`
+                : `Reading text · ${percent}%`}
           </p>
           <p className="text-center text-xs text-ink-soft">🔒 Processed on this device. Nothing is uploaded.</p>
         </div>
