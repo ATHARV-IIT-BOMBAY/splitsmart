@@ -21,3 +21,8 @@ Real receipts we use to test the scanner. Each photo gets one row in the table b
 |receipt-03.jpg|Zepto|203.02| |
 |receipt-04.jpg|Lenskart|1015| |
 |receipt-05.jpg|Zomato|397.65| |
+|receipt-06.jpg|Gulmohar|3240| |
+|receipt-07.jpg|Zomato|1811|rotated|
+|receipt-08.jpg|H2 Canteen|253| |
+|receipt-09.jpg|Gulmohar|2286| |
+|receipt-10.jpg|Aromas|216|faded|
