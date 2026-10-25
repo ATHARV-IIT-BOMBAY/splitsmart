@@ -4,7 +4,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 
 **How to fill this in:** do each test on your phone, then write what happened in plain words. Put ✅ if it worked, ❌ if it broke, ⚠️ if it worked but was confusing. Add a screenshot to `docs/screenshots/` if something broke.
 
-**Tested on:** _phone model_, _browser (Chrome / Firefox / Safari)_, _date_
+**Tested on:** _Samsung S25_, _browser Safari_, _date_
 
 | # | Test | What to do | What should happen | What happened | Result |
 |---|---|---|---|---|---|
