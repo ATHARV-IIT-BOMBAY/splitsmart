@@ -12,7 +12,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 | 2 | Faded thermal receipt | Scan a faded canteen slip | Unsure words highlighted yellow; you can fix them |Read Items names wrong, missed items | ⚠️|
 | 3 | Rotated photo | Take the photo sideways or upside down | Still reads it, or offers Rotate / Retake |No items found on this photo, offered retake |⚠️|
 | 4 | Not a receipt | Scan a selfie or a wall | "No items found" with Retake / Type items |No items found on this photo, offered retake |✅ |
-| 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | Yes, asked to check|  |
+| 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | Yes, asked to check| ✅ |
 | 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | | ✅ |
 | 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works | | |
 | 8 | Offline | Open the app once, turn on airplane mode, reopen | App opens with saved groups | | ✅ |
