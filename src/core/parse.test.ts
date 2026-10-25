@@ -133,6 +133,14 @@ describe('parseReceipt', () => {
     expect(checkTotal(r).difference).toBe(800)
   })
 
+  it('a line bigger than the whole bill lost its decimal point: 22900 → 229.00', () => {
+    const r = parseReceipt(ocr('Double Cheese 22900?\nFries 119.00\nTotal 348.00'))
+    expect(r.items.map((i) => [i.totalPaise, i.doubtfulAmount])).toEqual([
+      [22900, true],
+      [11900, false],
+    ])
+  })
+
   it('ignores "Total Qty" lines', () => {
     const r = parseReceipt(ocr('Samosa 2 15.00 30.00\nTotal Qty 2\nTotal 30.00'))
     expect(r.items).toHaveLength(1)

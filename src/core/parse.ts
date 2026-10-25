@@ -56,7 +56,7 @@ export interface ParsedReceipt {
 }
 
 // OCR often reads digits as look-alike letters inside numbers.
-const DIGIT_LOOKALIKES: Record<string, string> = { O: '0', o: '0', D: '0', l: '1', I: '1', '|': '1', S: '5', B: '8', Z: '2' }
+const DIGIT_LOOKALIKES: Record<string, string> = { O: '0', o: '0', D: '0', l: '1', I: '1', '|': '1', S: '5', B: '8', Z: '2', T: '7' }
 
 /** Table borders, brackets and stray punctuation OCR glues onto words. */
 const stripJunk = (token: string) => token.replace(/^[|[\](){}<>«»“”"'`]+|[|[\](){}<>«»“”"'`,;:.]+$/g, '')
@@ -82,9 +82,9 @@ export function readAmount(token: string, rupeeAsThree = false): Paise | null {
   if (rupeeAsThree && /^3\d{2,}$/.test(cleaned)) cleaned = cleaned.slice(1)
   const digits = (cleaned.match(/\d/g) ?? []).length
   // Mostly digits, or clearly price-shaped like "8O,OO" (two places after the point)
-  const priceShaped = /^[\dODolISBZ|,]+[.,][\dODolISBZ|]{2}$/.test(cleaned)
+  const priceShaped = /^[\dODolISBZT|,]+[.,][\dODolISBZT|]{2}$/.test(cleaned)
   if (digits === 0 || (digits < cleaned.replace(/[.,]/g, '').length / 2 && !priceShaped)) return null
-  let fixed = cleaned.replace(/[ODolISBZ|]/g, (c) => DIGIT_LOOKALIKES[c] ?? c)
+  let fixed = cleaned.replace(/[ODolISBZT|]/g, (c) => DIGIT_LOOKALIKES[c] ?? c)
   // "80,00" (comma as decimal point) → "80.00"; "1,250.00" stays as grouping
   if (/^\d+,\d{2}$/.test(fixed)) fixed = fixed.replace(',', '.')
   // Long whole numbers are PIN codes, phone or bill numbers, not prices
@@ -99,15 +99,15 @@ type LineKind = 'total' | 'grandTotal' | 'subtotal' | Charge['kind'] | 'noise'
 const KEYWORDS: [RegExp, LineKind][] = [
   [/grand\s*total|bill\s*total|net\s*(amount|amt|total|payable)|bill\s*amount|amount\s*payable|invoice\s*(value|total|amount)|total\s*(value|amount|payable|due)|to\s*pay\b/, 'grandTotal'],
   [/discount|disc\b|\bless\b|offer|coupon|savings?/, 'discount'],
-  [/gstin|gst\s*no|fssai|phone|ph\b|mob|tel\b|invoice|bill\s*no|order|table|kot\b|cashier|waiter|steward|date|time|hsn|sac\b|thank|visit|cin\b|pan\b|upi|card|cash\b|change\b|tender|paid\b|deliver(ed|y)\s*(on|by|address)|address|road|floor|shop\s*no|property|plot|place\s*of\s*supply|kms\b|survey|in\s*words|settled|taxable/, 'noise'],
+  [/gstin|gst\s*no|fssai|phone|ph\b|mob|tel\b|invoice|bill\s*no|order|table|kot\b|cashier|waiter|steward|date|time|hsn|sac\b|thank|visit|cin\b|pan\b|upi|card|cash\b|ext\b|change\b|tender|paid\b|deliver(ed|y)\s*(on|by|address)|address|road|floor|shop\s*no|property|plot|place\s*of\s*supply|kms\b|survey|in\s*words|settled|taxable/, 'noise'],
   [/total\s*(qty|quantity|items?)|no\.?\s*of\s*items|items?\s*count/, 'noise'],
-  [/sub\s*-?\s*total|item\s*(\(s\))?\s*total|food\s*total|gross/, 'subtotal'],
+  [/sub\s*-?\s*tota?l?\b|item\s*(\(s\))?\s*total|food\s*total|gross/, 'subtotal'],
   [/payable|net\b/, 'grandTotal'],
   [/round\s*(ing|ed)?\s*off|r\/?\s*off|round/, 'roundoff'],
   [/service\s*(charge|chg|tax)?|\bs\.?\s*c\.?\b/, 'service'],
   [/packing|packaging|container|delivery|parcel/, 'delivery'],
   [/platform\s*fee|convenience|handling/, 'other'],
-  [/c\.?\s*gst|s\.?\s*gst|i\.?\s*gst|u\.?\s*gst|\bgst\b|\bvat\b|cess|\btax(es)?\b/, 'tax'],
+  [/c\.?\s*gst|s\.?\s*gst|i\.?\s*gst|u\.?\s*gst|\bgst\b|\b[cs]\.?st\b|\bvat\b|cess|\btax(es)?\b/, 'tax'],
   [/\btotal\b|\bamount\b|\bamt\b/, 'total'],
 ]
 
@@ -137,7 +137,7 @@ const CONNECTOR = /^[x×@*=+\-–—]$/i
 /** Numbers, percentages, "x"/"@" and leftover junk: the columns after an item's name. */
 const isNumberish = (token: string, rupeeAsThree: boolean) => {
   const t = stripJunk(token)
-  return t === '' || CONNECTOR.test(t) || /^[+-]?\d+([.,]\d+)?%?$/.test(t) || readAmount(t, rupeeAsThree) !== null
+  return t === '' || !/[a-z0-9]/i.test(t) || CONNECTOR.test(t) || /^[+-]?\d+([.,]\d+)?%?$/.test(t) || readAmount(t, rupeeAsThree) !== null
 }
 
 /**
@@ -237,52 +237,92 @@ function chargeLabel(tokens: string[], rupeeAsThree: boolean): string {
   return label.join(' ').replace(/[:\-–]+$/, '').trim()
 }
 
+type TotalLine = { kind: 'subtotal' | 'total' | 'grandTotal'; paise: Paise; at: number }
+
+/**
+ * Picks the subtotal and the total from every total-looking line:
+ * - subtotal: a "Sub Total"-style line before any tax or charge, or a line
+ *   equal to the items' sum;
+ * - total: of the lines after the last charge, the one closest to items +
+ *   charges (OCR may misread one of them, e.g. "3240" as "8240"), but a final
+ *   rounded total within ₹1 of it wins.
+ */
+function pickTotals(lines: TotalLine[], itemsSum: Paise, charges: ParsedCharge[], chargeAt: number[]) {
+  const firstCharge = chargeAt[0] ?? Infinity
+  const lastCharge = chargeAt.at(-1) ?? -1
+  const before = lines.filter((t) => t.at < firstCharge)
+  const subtotal =
+    before.filter((t) => t.kind === 'subtotal').at(-1) ??
+    before.find((t) => t.paise === itemsSum) ??
+    (charges.length > 0 ? before.filter((t) => t.kind !== 'grandTotal').at(-1) : undefined)
+
+  const after = lines.filter((t) => t !== subtotal && t.at > lastCharge)
+  let total: TotalLine | undefined
+  if (after.length > 0) {
+    const expected = itemsSum + charges.reduce((sum, c) => sum + c.paise, 0)
+    const closest = after.reduce((a, b) => (Math.abs(b.paise - expected) < Math.abs(a.paise - expected) ? b : a))
+    const last = after.at(-1)!
+    total = Math.abs(last.paise - closest.paise) <= 100 ? last : closest
+  }
+  // Grocery invoices often print only "Item Total" with nothing added on top
+  const totalPaise = total?.paise ?? (charges.length === 0 ? subtotal?.paise : undefined)
+  return { subtotalPaise: subtotal?.paise, totalPaise }
+}
+
 function parseLines(lines: readonly OcrLine[], rupeeAsThree: boolean): ParsedReceipt {
   const items: ParsedItem[] = []
   const charges: ParsedCharge[] = []
-  const totals: { kind: 'total' | 'grandTotal'; paise: Paise }[] = []
-  let subtotalPaise: Paise | undefined
+  const chargeAt: number[] = []
+  const totals: TotalLine[] = []
 
-  for (const line of lines) {
+  lines.forEach((line, at) => {
     const words = line.words.filter((w) => w.text.trim())
     // The price is the last real word on the line. Anything after it other than
     // stray symbols ("FREE", "HELP", "kms") means this line has no price.
     let amountIndex = words.length - 1
     while (amountIndex >= 0 && !/[a-z0-9]/i.test(words[amountIndex].text)) amountIndex--
-    if (amountIndex <= 0) continue
-    const raw = words[amountIndex].text
+    if (amountIndex <= 0) return
+    let raw = words[amountIndex].text
+
+    // OCR sometimes splits "253.00" into "253," and "00"
+    const prev = words[amountIndex - 1]?.text ?? ''
+    const totalish = (k: LineKind | null) => k === 'subtotal' || k === 'total' || k === 'grandTotal'
+    if (
+      amountIndex >= 2 &&
+      /^\d{2}$/.test(raw) &&
+      (/^\d+[.,]$/.test(prev) ||
+        (/^\d+$/.test(prev) && totalish(classify(words.slice(0, amountIndex - 1).map((w) => w.text).join(' ')))))
+    ) {
+      raw = `${prev.replace(/[.,]$/, '')}.${raw}`
+      amountIndex--
+    }
+
     // "(450 ml)", "(52.9 g": pack sizes in brackets, not prices
-    if (raw.startsWith('(')) continue
+    if (raw.startsWith('(')) return
     const paise = readAmount(raw, rupeeAsThree)
-    if (paise === null) continue
+    if (paise === null) return
 
     const labelTokens = words.slice(0, amountIndex).map((w) => w.text)
     const kind = classify(labelTokens.join(' '))
     const doubtful = isDoubtful(words.slice(amountIndex))
     const negative = isNegative(raw)
 
-    if (kind === 'noise') continue
-    if (kind === 'subtotal') subtotalPaise = paise
-    else if (kind === 'total' || kind === 'grandTotal') totals.push({ kind, paise })
+    if (kind === 'noise') return
+    if (kind === 'subtotal' || kind === 'total' || kind === 'grandTotal') totals.push({ kind, paise, at })
     else if (kind) {
       const minus = negative || kind === 'discount' || (kind === 'roundoff' && /-\s*$|\(-/.test(line.text))
       charges.push({ label: chargeLabel(labelTokens, rupeeAsThree), kind, paise: minus ? -paise : paise, bbox: line.bbox, doubtful })
+      chargeAt.push(at)
     } else {
       // Whole numbers under ₹10 without paise are almost always a quantity or row number
-      if (!/[.,]\d{2}$/.test(stripJunk(raw)) && paise < 1000) continue
+      if (!/[.,]\d{2}$/.test(stripJunk(raw)) && paise < 1000) return
       const item = parseItem(words, amountIndex, paise, line.bbox, rupeeAsThree)
       if (item) items.push(item)
     }
-  }
+  })
 
-  // A plain "Total" before the grand total is really the subtotal; the grand total wins.
-  const grand = totals.filter((t) => t.kind === 'grandTotal').at(-1) ?? totals.at(-1)
-  for (const t of totals) {
-    if (t !== grand && subtotalPaise === undefined) subtotalPaise = t.paise
-  }
-  // Grocery invoices often print only "Item Total" with nothing added on top
-  const totalPaise = grand?.paise ?? (charges.length === 0 ? subtotalPaise : undefined)
-  return { items, charges, subtotalPaise, totalPaise }
+  const itemsSum = items.reduce((sum, i) => sum + i.totalPaise, 0)
+  return { items, charges, ...pickTotals(totals, itemsSum, charges, chargeAt) }
 }
 
 /** True when the items or the whole bill add up to what the receipt printed. */
@@ -298,6 +338,18 @@ function addsUp(r: ParsedReceipt): boolean {
  */
 function restoreDecimals(r: ParsedReceipt): ParsedReceipt {
   if (r.totalPaise === undefined) return r
+  // No single line can cost more than the whole bill before discounts: "229.00" read as "22900"
+  const limit = Math.max(r.totalPaise, r.subtotalPaise ?? 0)
+  const tooBig = (paise: Paise) => Math.abs(paise) > limit && paise % 100 === 0 && Math.abs(paise) / 100 <= limit
+  r = {
+    ...r,
+    items: r.items.map((i) =>
+      tooBig(i.totalPaise)
+        ? { ...i, totalPaise: i.totalPaise / 100, unitPaise: i.unitPaise && i.unitPaise / 100, doubtfulAmount: true }
+        : i,
+    ),
+    charges: r.charges.map((c) => (tooBig(c.paise) ? { ...c, paise: c.paise / 100, doubtful: true } : c)),
+  }
   const suspects = r.charges.filter((c) => c.doubtful && Math.abs(c.paise) >= 100000 && c.paise % 100 === 0)
   if (suspects.length === 0 || suspects.length > 6) return r
   let best = r
@@ -311,12 +363,21 @@ function restoreDecimals(r: ParsedReceipt): ParsedReceipt {
   return bestGap <= 100 ? best : r
 }
 
+/** Bills are often rounded to the rupee without printing a round-off line. */
+function addRoundOff(r: ParsedReceipt): ParsedReceipt {
+  const { difference } = checkTotal(r)
+  if (difference === 0 || Math.abs(difference) > 100 || r.charges.some((c) => c.kind === 'roundoff')) return r
+  const last = r.charges.at(-1) ?? r.items.at(-1)
+  if (!last) return r
+  return { ...r, charges: [...r.charges, { label: 'Round off', kind: 'roundoff', paise: -difference, bbox: last.bbox, doubtful: false }] }
+}
+
 export function parseReceipt(lines: readonly OcrLine[]): ParsedReceipt {
   const plain = parseLines(lines, false)
   if (addsUp(plain)) return plain
   // Try reading a leading "3" as a misread ₹ sign, and keep it only if the numbers then add up
   const rupee = parseLines(lines, true)
-  return restoreDecimals(addsUp(rupee) ? rupee : plain)
+  return addRoundOff(restoreDecimals(addsUp(rupee) ? rupee : plain))
 }
 
 /** Items + charges, and how far that is from the printed total. */
