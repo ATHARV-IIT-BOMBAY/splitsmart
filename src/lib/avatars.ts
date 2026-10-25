@@ -1,8 +1,16 @@
-import { createAvatar } from '@dicebear/core'
+import { createAvatar, type Style } from '@dicebear/core'
 import { adventurer, bottts, funEmoji, lorelei, thumbs } from '@dicebear/collection'
 
-export const AVATAR_STYLES = { adventurer, bottts, funEmoji, lorelei, thumbs }
-export type AvatarStyle = keyof typeof AVATAR_STYLES
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const AVATAR_STYLES: Record<string, Style<any>> = {
+  adventurer,
+  bottts,
+  funEmoji,
+  lorelei,
+  thumbs,
+}
+
+export type AvatarStyle = 'adventurer' | 'bottts' | 'funEmoji' | 'lorelei' | 'thumbs'
 
 export const avatarUri = (style: AvatarStyle, seed: string) =>
   createAvatar(AVATAR_STYLES[style], { seed }).toDataUri()

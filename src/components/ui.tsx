@@ -1,5 +1,4 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { initials } from '../core/members'
 import { formatINR, type Paise } from '../core/money'
 import type { Member } from '../core/types'
 import { button } from './styles'
