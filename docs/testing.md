@@ -21,7 +21,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 ## Bugs found
 
 | What I did | What went wrong | Phone and browser | Screenshot |
-| rotated bill|Item names not recognised|both||
-|faded bill |mis spelled item names | | |
-|clear bill showed tax in item category|||
+| rotated bill | Item names not recognised | both | |
+| faded bill | mis spelled item names | | |
+| clear bill showed tax in item category | | |
 
