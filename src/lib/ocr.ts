@@ -26,11 +26,10 @@ function getWorker(): Promise<Worker> {
   return worker
 }
 
-export async function readReceipt(image: HTMLCanvasElement, onProgress: (p: OcrProgress) => void): Promise<OcrLine[]> {
-  report = onProgress
-  const w = await getWorker()
-  const { data } = await w.recognize(image, {}, { blocks: true })
-  return (data.blocks ?? []).flatMap((block) =>
+type Page = Awaited<ReturnType<Worker['recognize']>>['data']
+
+const toLines = (page: Page): OcrLine[] =>
+  (page.blocks ?? []).flatMap((block) =>
     block.paragraphs.flatMap((paragraph) =>
       paragraph.lines.map((line) => ({
         text: line.text.trim(),
@@ -39,4 +38,25 @@ export async function readReceipt(image: HTMLCanvasElement, onProgress: (p: OcrP
       })),
     ),
   )
+
+export async function readReceipt(image: HTMLCanvasElement, onProgress: (p: OcrProgress) => void): Promise<OcrLine[]> {
+  report = onProgress
+  const w = await getWorker()
+  const lines = toLines((await w.recognize(image, {}, { blocks: true })).data)
+
+  // Folds and shadows can make Tesseract stop part-way down a receipt. If the
+  // bottom of the photo wasn't read, read just that part again as one block.
+  const lastBottom = Math.max(0, ...lines.map((l) => l.bbox.y1))
+  if (lines.length > 0 && lastBottom < image.height * 0.85) {
+    const { PSM } = await import('tesseract.js')
+    await w.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK })
+    try {
+      const rectangle = { left: 0, top: lastBottom, width: image.width, height: image.height - lastBottom }
+      const rest = toLines((await w.recognize(image, { rectangle }, { blocks: true })).data)
+      lines.push(...rest.filter((l) => l.bbox.y0 >= lastBottom - 4 && l.text))
+    } finally {
+      await w.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_COLUMN })
+    }
+  }
+  return lines
 }

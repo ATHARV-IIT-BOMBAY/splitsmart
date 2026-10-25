@@ -1,0 +1,26 @@
+Tax Invoice
+eternal ORIGINAL FOR RECIPIENT
+Tax Invoice on behalf of -
+Legal Entity Name: HARDCASTLE RESTAURANTS PVT LTD
+Restaurant Name: McDonald's
+Restaurant Address: Shop 1, CTS 73A/3, Survey 47/18, Ground Floor,? ATL Corporate Park Premises, Powai, Mumbai
+Restaurant GSTIN: 27AAAFH1333H1ZT
+Restaurant FSSA:? 11522007000408
+Invoice No.: 26XDINA100012932?
+Invoice Date: 29/07/2026
+Customer Name: Abhiraj? Kumar
+Delivery Address: Hostel 18, IIT Bombay, 400076
+State name and Place of Supply: Maharashtra (27)
+HSN Code: 996331
+Service Description: Restaurant Service
+Particulars Gross value | Discount? Netvalue |CGST? (Rate)|? CGST (INR) [SGST (Rate)| SGST (INR)? |? __? Total
+1? x? McVeggie Burger Combo 38523 19262 19262 2.50% 482 2.50% 282? 202.25
+Tx? McAloo? Tikki? Burger 79 0.00 79.00 2.50% 198 2.50% 198 82.95
+1x Veg Pizza McPuff? 69? 0.00 9.00 2.50% 173 2.50% 173 72.45?
+item(s) Total 533.23 19262 34062 852 852 357.64
+Restaurant Packaging Charge 3810 0.00 3810 250% 095 2.50% 095 2001
+Total Value 378.72 947 9.47 397.65
+Amount (in words): Three Hundred Ninety Seven Rupees And Sixty Five Paisa Only
+Amount of INR 397.65 settled digitally against Order ID 8402434846 dated 2026-07-29.
+Supply attracts reverse charge : No
+Authorised Signatory
