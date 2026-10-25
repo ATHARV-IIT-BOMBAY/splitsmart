@@ -1,4 +1,8 @@
 import type { Paise } from './money'
+import type { AvatarStyle } from '../lib/avatars.ts'
+
+// inside the Member type:
+
 
 export type MemberId = string
 
@@ -8,6 +12,8 @@ export interface Member {
   color: string
   emoji?: string
   upiId?: string
+
+  avatar?: { style: AvatarStyle; seed: string }
 }
 
 export type Category = 'Food' | 'Groceries' | 'Travel' | 'Utilities' | 'Entertainment' | 'Other'
