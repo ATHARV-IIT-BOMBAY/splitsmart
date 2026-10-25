@@ -40,3 +40,12 @@ npm run dev
 | **Abhinav Kaushal** | Documentation and content lead | README, user guide, in-app text, demo script |
 
 SplitSmart has no server by design. All logic, storage and AI run on the user's device for privacy.
+
+## Credits
+
+Member avatars are drawn on the device with [DiceBear](https://www.dicebear.com/) (MIT):
+
+- **Adventurer** by Lisa Wischofsky, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- **Fun Emoji** by Davis Uche, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- **Bottts** by Pablo Stanley, free for personal and commercial use ([bottts.com](https://bottts.com/))
+- **Lorelei** by Lisa Wischofsky and **Thumbs** by DiceBear, MIT

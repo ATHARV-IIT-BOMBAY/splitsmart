@@ -1,9 +1,7 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { lazy, Suspense, useState, type FormEvent } from 'react'
 import { Avatar, Money, Sheet } from '../../components/ui'
 import { button, card, input } from '../../components/styles'
-import { MEMBER_COLORS } from '../../core/members'
 import type { Group, Member } from '../../core/types'
-import { AVATAR_STYLES, avatarUri, type AvatarStyle } from '../../lib/avatars.ts'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
 import { BalancesPanel } from '../balances/BalancesPanel'
@@ -14,9 +12,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 const TABS = ['Expenses', 'Balances', 'Members'] as const
 type Tab = (typeof TABS)[number]
 
-
-
-const SEEDS = ['Mia', 'Leo', 'Zoe', 'Kai', 'Ava', 'Rio', 'Ivy', 'Max', 'Nia', 'Sam', 'Tia', 'Dev']
+// The picker pulls in the avatar art library, so it loads only when opened
+const AvatarPicker = lazy(() => import('./AvatarPicker'))
 
 export function GroupPage({ groupId }: { groupId: string }) {
   const group = useGroup(groupId)
@@ -109,18 +106,14 @@ function MembersPanel({ group }: { group: Group }) {
       <ul className={`${card} divide-y divide-line`}>
         {group.members.map((m) => (
           <li key={m.id} className="flex items-center gap-3 px-4 py-3">
-            {m.id === group.meId ? (
-              <button
-                type="button"
-                aria-label="Change your avatar"
-                onClick={() => setStyling(m)}
-                className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <Avatar member={m} size={36} />
-              </button>
-            ) : (
+            <button
+              type="button"
+              aria-label={`Change ${m.name}'s avatar`}
+              onClick={() => setStyling(m)}
+              className="rounded-full transition hover:scale-105"
+            >
               <Avatar member={m} size={36} />
-            )}
+            </button>
             <span className="flex-1 font-medium">
               {m.name}
               {m.id === group.meId && <span className="ml-2 text-xs text-ink-soft">(you)</span>}
@@ -153,94 +146,12 @@ function MembersPanel({ group }: { group: Group }) {
           {message}
         </p>
       )}
-      {styling && <MemberStyleSheet groupId={group.id} member={styling} onClose={() => setStyling(null)} />}
+      {styling && (
+        <Suspense fallback={null}>
+          <AvatarPicker groupId={group.id} member={styling} onClose={() => setStyling(null)} />
+        </Suspense>
+      )}
     </div>
-  )
-}
-
-function MemberStyleSheet({ groupId, member, onClose }: { groupId: string; member: Member; onClose: () => void }) {
-  const updateMember = useGroups((s) => s.updateMember)
-  const [color, setColor] = useState(member.color)
-  const [avatar, setAvatar] = useState(member.avatar)
-  const [style, setStyle] = useState<AvatarStyle>(member.avatar?.style ?? 'adventurer')
-
-  const options = useMemo(() => SEEDS.map((seed) => ({ seed, uri: avatarUri(style, seed) })), [style])
-
-  function save() {
-    updateMember(groupId, member.id, { color, avatar })
-    onClose()
-  }
-
-  return (
-    <Sheet open onClose={onClose} title={`${member.name}’s avatar`}>
-      <div className="max-h-[70vh] space-y-5 overflow-y-auto text-ink">
-        <div className="flex justify-center" aria-hidden="true">
-          <Avatar member={{ ...member, color, avatar }} size={72} />
-        </div>
-
-        <div>
-          <p className="mb-2 text-sm font-semibold">Characters</p>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {(Object.keys(AVATAR_STYLES) as AvatarStyle[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={style === s}
-                onClick={() => setStyle(s)}
-                className={`cursor-pointer rounded-full border border-line px-3 py-1 text-sm ${
-                  style === s ? 'bg-accent text-white' : 'bg-paper text-ink'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <div className="grid grid-cols-4 gap-3">
-            {options.map(({ seed, uri }) => {
-              const selected = avatar?.style === style && avatar.seed === seed
-              return (
-                <button
-                  key={seed}
-                  type="button"
-                  aria-label={`Character ${seed}`}
-                  aria-pressed={selected}
-                  onClick={() => setAvatar({ style, seed })}
-                  style={{ backgroundColor: color }}
-                  className={`aspect-square cursor-pointer overflow-hidden rounded-full border border-line ${
-                    selected ? 'ring-2 ring-accent ring-offset-2 ring-offset-paper' : ''
-                  }`}
-                >
-                  <img src={uri} alt="" className="block h-full w-full object-cover" />
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div>
-          <p className="mb-2 text-sm font-semibold">Colour</p>
-          <div className="flex flex-wrap gap-2">
-            {MEMBER_COLORS.map((c) => (
-              <button
-                key={c}
-                type="button"
-                aria-label={`Colour ${c}`}
-                aria-pressed={color === c}
-                onClick={() => setColor(c)}
-                style={{ backgroundColor: c }}
-                className={`h-9 w-9 cursor-pointer rounded-full border border-line ${
-                  color === c ? 'ring-2 ring-accent ring-offset-2 ring-offset-paper' : ''
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <button type="button" className={`${button.primary} w-full`} onClick={save}>
-          Save
-        </button>
-      </div>
-    </Sheet>
   )
 }
 

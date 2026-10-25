@@ -1,48 +1,40 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { formatINR, type Paise } from '../core/money'
 import type { Member } from '../core/types'
 import { button } from './styles'
-import { avatarUri } from '../lib/avatars.ts'
 
-export function Avatar({
-  member,
-  size = 36,
-}: {
-  member: Pick<Member, 'name' | 'color' | 'emoji' | 'avatar'>
-  size?: number
-}) {
-  const fontSize = member.emoji ? size * 0.7 : size * 0.45
+let avatarLib: Promise<typeof import('../lib/avatars')> | undefined
 
+/** Loads the avatar art only when a member actually has a character picked. */
+function useAvatarUri(avatar: Member['avatar']): string | undefined {
+  const [uri, setUri] = useState<{ key: string; value: string }>()
+  const key = avatar ? `${avatar.style}:${avatar.seed}` : ''
+  useEffect(() => {
+    if (!avatar) return
+    let live = true
+    avatarLib ??= import('../lib/avatars')
+    void avatarLib.then((lib) => live && setUri({ key, value: lib.avatarUri(avatar.style, avatar.seed) }))
+    return () => {
+      live = false
+    }
+  }, [key]) // eslint-disable-line react-hooks/exhaustive-deps
+  return uri?.key === key ? uri.value : undefined
+}
+
+export function Avatar({ member, size = 32 }: { member: Pick<Member, 'name' | 'color' | 'emoji' | 'avatar'>; size?: number }) {
+  const art = useAvatarUri(member.avatar)
   return (
     <span
-      className="inline-grid shrink-0 select-none place-items-center overflow-hidden rounded-full"
-      style={{ width: size, height: size, backgroundColor: member.color }}
+      title={member.name}
+      aria-hidden="true"
+      className="inline-grid shrink-0 select-none place-items-center overflow-hidden rounded-full border-2 border-edge font-bold text-[#1c1b19]"
+      style={{ width: size, height: size, backgroundColor: member.color, fontSize: member.emoji ? size * 0.6 : size * 0.42 }}
     >
-      {member.avatar ? (
-        <img
-          src={avatarUri(member.avatar.style, member.avatar.seed)}
-          alt=""
-          className="block h-full w-full object-cover"
-        />
-      ) : (
-        <span
-          style={{
-            fontSize,
-            lineHeight: 1,
-            width: fontSize,
-            height: fontSize,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transform: member.emoji ? `translateY(${size * 0.03}px)` : undefined,
-          }}
-        >
-          {member.emoji ?? member.name.charAt(0).toUpperCase()}
-        </span>
-      )}
+      {art ? <img src={art} alt="" className="block size-full object-cover" /> : (member.emoji ?? member.name.charAt(0).toUpperCase())}
     </span>
   )
 }
+
 export function AvatarStack({ members, max = 5 }: { members: Member[]; max?: number }) {
   const extra = members.length - max
   return (
