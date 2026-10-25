@@ -107,6 +107,38 @@ dialog::backdrop {
   outline-offset: 2px;
 }
 
+/* Rubber-stamp "PAID" that lands on a settled payment */
+.stamp,
+.stamp-static {
+  border: 3px solid var(--owed);
+  border-radius: 8px;
+  color: var(--owed);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  rotate: -12deg;
+}
+.stamp {
+  padding: 2px 12px;
+  font-size: 1.5rem;
+  animation: stamp-in 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.stamp-static {
+  padding: 0 6px;
+  font-size: 0.7rem;
+  border-width: 2px;
+}
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    scale: 2.4;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
 /* People who turn on "Reduce motion" get no press, slide or scan animations. */
 @media (prefers-reduced-motion: reduce) {
   *,

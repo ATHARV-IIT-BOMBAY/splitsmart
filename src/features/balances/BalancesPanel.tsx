@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { Avatar, Money } from '../../components/ui'
 import { button, card } from '../../components/styles'
-import { computeBalances } from '../../core/balances'
-import { settleUp } from '../../core/settle'
+import { computeBalances, directDebtCount } from '../../core/balances'
+import { settleUp, type Transfer } from '../../core/settle'
 import type { Group } from '../../core/types'
 import { today } from '../expenses/draft'
 import { useGroups } from '../../store/groups'
@@ -11,8 +12,22 @@ export function BalancesPanel({ group }: { group: Group }) {
   const deleteSettlement = useGroups((s) => s.deleteSettlement)
   const balances = computeBalances(group)
   const transfers = settleUp(balances)
+  const iouCount = directDebtCount(group)
+  const [stamping, setStamping] = useState<string | null>(null)
   const member = (id: string) => group.members.find((m) => m.id === id)
   const nameOf = (id: string) => (id === group.meId ? 'You' : member(id)?.name ?? 'Someone')
+  const keyOf = (t: Transfer) => `${t.from}-${t.to}`
+
+  // Let the PAID stamp land before the payment moves to "Payments made"
+  function markPaid(t: Transfer) {
+    navigator.vibrate?.(20)
+    setStamping(keyOf(t))
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.setTimeout(() => {
+      addSettlement(group.id, { ...t, date: today() })
+      setStamping(null)
+    }, reduced ? 0 : 650)
+  }
 
   return (
     <div className="space-y-6">
@@ -48,19 +63,35 @@ export function BalancesPanel({ group }: { group: Group }) {
           Settle up
         </h2>
         {transfers.length === 0 ? (
-          <p className={`${card} px-4 py-6 text-center text-ink-soft`}>Everyone’s square. Nothing to pay.</p>
+          <div className={`${card} px-4 py-6 text-center`}>
+            <p className="text-3xl" aria-hidden="true">
+              {group.settlements.length > 0 ? '🎉' : '🤝'}
+            </p>
+            <p className="mt-1 font-bold">{group.settlements.length > 0 ? 'All square!' : 'Everyone’s square'}</p>
+            <p className="text-sm text-ink-soft">Nothing to pay.</p>
+          </div>
         ) : (
           <>
-            <p className="mb-2 text-sm text-ink-soft">
-              {transfers.length} {transfers.length === 1 ? 'payment settles' : 'payments settle'} everything. That’s the
-              fewest possible.
-            </p>
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+              {iouCount > transfers.length && (
+                <span className="rounded-full border-2 border-edge bg-paper px-3 py-1 font-semibold">
+                  <span className="text-ink-soft line-through">{iouCount} IOUs</span> → {transfers.length}{' '}
+                  {transfers.length === 1 ? 'payment' : 'payments'}
+                </span>
+              )}
+              <span className="text-ink-soft">The fewest payments that settle everything.</span>
+            </div>
             <ul className="space-y-2">
               {transfers.map((t) => {
                 const from = member(t.from)
                 const to = member(t.to)
                 return (
-                  <li key={`${t.from}-${t.to}`} className={`${card} flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3`}>
+                  <li key={keyOf(t)} className={`${card} relative flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3`}>
+                    {stamping === keyOf(t) && (
+                      <span aria-hidden="true" className="stamp pointer-events-none absolute right-6 top-2">
+                        PAID
+                      </span>
+                    )}
                     <span className="flex items-center gap-1" aria-hidden="true">
                       {from && <Avatar member={from} />}
                       <span className="text-ink-soft">→</span>
@@ -75,7 +106,8 @@ export function BalancesPanel({ group }: { group: Group }) {
                     <button
                       type="button"
                       className={`${button.secondary} w-full sm:w-auto`}
-                      onClick={() => addSettlement(group.id, { ...t, date: today() })}
+                      onClick={() => markPaid(t)}
+                      disabled={stamping !== null}
                     >
                       Mark paid
                     </button>
@@ -95,6 +127,9 @@ export function BalancesPanel({ group }: { group: Group }) {
           <ul className={`${card} divide-y divide-line`}>
             {group.settlements.map((s) => (
               <li key={s.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                <span className="stamp-static" aria-hidden="true">
+                  PAID
+                </span>
                 <span className="flex-1">
                   {nameOf(s.from)} paid {s.to === group.meId ? 'you' : nameOf(s.to)} <Money paise={s.paise} />
                 </span>

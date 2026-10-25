@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeBalances } from './balances'
+import { computeBalances, directDebtCount } from './balances'
 import { MAX_EXACT_PEOPLE, settleUp, type Transfer } from './settle'
 import type { Expense, Group } from './types'
 
@@ -115,6 +115,17 @@ describe('computeBalances (5 members, 10 expenses, mixed payers)', () => {
     const transfers = settleUp(balances)
     expect(transfers).toHaveLength(bruteForceMinimum(Object.values(balances)))
     expect(Object.values(afterPaying(balances, transfers)).every((b) => b === 0)).toBe(true)
+  })
+
+  it('counts the IOUs people would have without simplifying', () => {
+    expect(directDebtCount(group)).toBeGreaterThan(settleUp(computeBalances(group)).length)
+    const twoWay: Group = {
+      ...group,
+      expenses: [equal('a', 'riya', 20000, ['riya', 'arjun']), equal('b', 'arjun', 30000, ['riya', 'arjun'])],
+      settlements: [],
+    }
+    // Arjun owes Riya 100 and Riya owes Arjun 150: they cancel into one IOU
+    expect(directDebtCount(twoWay)).toBe(1)
   })
 
   it('a recorded settlement reduces what is owed', () => {

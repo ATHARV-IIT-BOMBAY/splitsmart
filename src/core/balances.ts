@@ -26,3 +26,27 @@ export function computeBalances(group: Group): Record<MemberId, Paise> {
   }
   return balances
 }
+
+/**
+ * How many separate IOUs the group would have without simplifying: one for
+ * every pair of people where one still owes the other directly (after the two
+ * directions cancel out). Used to show "4 IOUs → 3 payments".
+ */
+export function directDebtCount(group: Group): number {
+  const memberOrder = group.members.map((m) => m.id)
+  const owed = new Map<string, number>() // "a|b" with a < b: positive means a owes b
+  const add = (from: MemberId, to: MemberId, amount: number) => {
+    if (from === to || amount === 0) return
+    const [key, sign] = from < to ? [`${from}|${to}`, 1] : [`${to}|${from}`, -1]
+    owed.set(key, (owed.get(key) ?? 0) + sign * amount)
+  }
+  for (const expense of group.expenses) {
+    const total = expense.amountPaise
+    for (const [debtor, share] of Object.entries(computeShares(expense, memberOrder))) {
+      // With more than one payer, each person owes every payer in proportion to what they paid
+      for (const [payer, paid] of Object.entries(expense.paidBy)) add(debtor, payer, (share * paid) / total)
+    }
+  }
+  for (const s of group.settlements) add(s.to, s.from, s.paise)
+  return [...owed.values()].filter((v) => Math.abs(v) >= 0.5).length
+}
