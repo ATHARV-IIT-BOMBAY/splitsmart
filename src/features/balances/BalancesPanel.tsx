@@ -7,6 +7,7 @@ import type { Group } from '../../core/types'
 import { today } from '../expenses/draft'
 import { formatINR } from '../../core/money'
 import { upiLink } from '../../core/upi'
+import { href } from '../../lib/router'
 import { shareText } from '../../lib/share'
 import { useGroups } from '../../store/groups'
 import { PaymentCard } from './PaymentCard'
@@ -112,6 +113,10 @@ export function BalancesPanel({ group }: { group: Group }) {
           </>
         )}
       </section>
+
+      <a href={href('g', group.id, 'report')} className={`${button.secondary} w-full`}>
+        Settlement report (PDF)
+      </a>
 
       {group.settlements.length > 0 && (
         <section aria-labelledby="paid-heading">

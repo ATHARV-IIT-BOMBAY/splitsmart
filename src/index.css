@@ -139,6 +139,30 @@ dialog::backdrop {
   }
 }
 
+/* Printing / Save as PDF: plain black on white, no app chrome */
+@media print {
+  :root {
+    --page: #fff;
+    --paper: #fff;
+    --ink: #000;
+    --ink-soft: #444;
+    --line: #ccc;
+    --edge: #000;
+  }
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .report table {
+    break-inside: auto;
+  }
+  .report tr {
+    break-inside: avoid;
+  }
+}
+
 /* People who turn on "Reduce motion" get no press, slide or scan animations. */
 @media (prefers-reduced-motion: reduce) {
   *,

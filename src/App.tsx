@@ -1,3 +1,4 @@
+import { ReportPage } from './features/balances/ReportPage'
 import { ExpenseForm } from './features/expenses/ExpenseForm'
 import { Dashboard } from './features/groups/Dashboard'
 import { GroupPage } from './features/groups/GroupPage'
@@ -21,6 +22,7 @@ function App() {
     return <ExpenseForm groupId={groupId} expenseId={expenseId === 'new' ? undefined : expenseId} />
   }
   if (section === 'g' && groupId && sub === 'scan') return <ScanPage groupId={groupId} />
+  if (section === 'g' && groupId && sub === 'report') return <ReportPage groupId={groupId} />
   if (section === 'g' && groupId) return <GroupPage groupId={groupId} />
   return <Dashboard />
 }
