@@ -56,6 +56,18 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
               Upload photo
             </button>
           </div>
+          {/* No receipt at hand? A real campus bill to try the whole flow with */}
+          <button
+            type="button"
+            className={`${button.ghost} mt-4`}
+            onClick={async () => {
+              setError('')
+              const response = await fetch(`${import.meta.env.BASE_URL}samples/gulmohar.jpg`)
+              void openPhoto(await response.blob())
+            }}
+          >
+            No receipt handy? Try a sample bill
+          </button>
         </div>
       )}
       <input
