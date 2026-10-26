@@ -186,7 +186,7 @@ export function AssignStep({
                   </button>
                 )}
               </div>
-              {empty && <p className="mt-1 text-xs text-owes">Tap who had this</p>}
+              {empty && <p className="mt-1 text-xs text-owes">Assign to someone</p>}
             </li>
           )
         })}

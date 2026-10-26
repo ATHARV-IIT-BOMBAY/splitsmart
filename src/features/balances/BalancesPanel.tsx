@@ -81,7 +81,7 @@ export function BalancesPanel({ group }: { group: Group }) {
             <p className="text-3xl" aria-hidden="true">
               {group.settlements.length > 0 ? '🎉' : '🤝'}
             </p>
-            <p className="mt-1 font-bold">{group.settlements.length > 0 ? 'All square!' : 'Everyone’s square'}</p>
+            <p className="mt-1 font-bold">{group.settlements.length > 0 ? 'All square!' : 'All settled up'}</p>
             <p className="text-sm text-ink-soft">Nothing to pay.</p>
           </div>
         ) : (

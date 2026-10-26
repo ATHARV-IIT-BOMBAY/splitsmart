@@ -67,7 +67,7 @@ export const useGroups = create<GroupsState>()(
           if (!group || !member) return null
           const uses = usageCount(group, memberId)
           if (uses > 0) {
-            return `${member.name} is part of ${uses} ${uses === 1 ? 'expense or payment' : 'expenses or payments'}. Remove them from those first.`
+            return `${member.name} still has ${uses} ${uses === 1 ? 'expense or payment' : 'expenses or payments'}. Settle or delete those first.`
           }
           update(groupId, (g) => ({
             ...g,

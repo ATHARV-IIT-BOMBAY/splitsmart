@@ -31,7 +31,7 @@ export function Dashboard() {
       {groups.length === 0 ? (
         <EmptyState
           title="Start your first group"
-          description="A group is your room, wing or trip. Add friends, then scan bills to split them."
+          description="Share expenses with anyone. Make a group, add friends, and start splitting bills."
           actionLabel="Create a group"
           onAction={() => setCreating(true)}
         />

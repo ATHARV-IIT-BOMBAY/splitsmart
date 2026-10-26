@@ -108,7 +108,7 @@ export function ReadStep({
       setError(
         navigator.onLine
           ? 'Reading failed. Try again, or retake the photo.'
-          : 'You’re offline and the text reader isn’t saved on this device yet. Connect once, then it works offline.',
+          : 'You’re offline and the text reader isn’t saved on your phone yet. Connect to the internet once to download it.',
       )
     }
   }

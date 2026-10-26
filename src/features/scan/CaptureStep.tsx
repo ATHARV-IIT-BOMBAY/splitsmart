@@ -39,7 +39,7 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
           </p>
           <p className="mt-3 text-lg font-bold">Scan a receipt</p>
           <p className="mx-auto mt-1 max-w-xs text-sm text-ink-soft">
-            Lay it flat in good light. It’s read on this phone and never uploaded.
+            Lay it flat in good light. It stays on your phone and is never saved online.
           </p>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <button
@@ -95,7 +95,7 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
 
 function cameraError(err: unknown): string {
   const name = err instanceof DOMException ? err.name : ''
-  if (name === 'NotAllowedError') return 'Camera access is blocked. Allow it in your browser settings, or upload a photo.'
+  if (name === 'NotAllowedError') return 'Your camera is blocked. Turn it on in your settings, or upload a photo instead.'
   if (name === 'NotFoundError' || name === 'OverconstrainedError') return 'No camera found on this device.'
   return 'The camera couldn’t start.'
 }

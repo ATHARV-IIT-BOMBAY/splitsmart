@@ -79,9 +79,9 @@ export function ScanPage({ groupId }: { groupId: string }) {
       {step.name === 'nothing-found' && (
         <div className="mx-auto max-w-md space-y-4 text-center">
           <img src={step.image.url} alt="Your photo" className="mx-auto max-h-64 rounded-xl" />
-          <p className="text-lg font-bold">No items found on this photo</p>
+          <p className="text-lg font-bold">Couldn’t read this photo</p>
           <p className="text-sm text-ink-soft">
-            We also tried it turned every way round. It may not be a receipt, or the text is too blurry. Retake it in good light, rotate it yourself, or type the items in.
+            The photo might be blurry or sideways (we tried turning it). Try taking it again in good light, or type the items in yourself.
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
             <button type="button" className={button.primary} onClick={() => setStep({ name: 'capture' })}>
