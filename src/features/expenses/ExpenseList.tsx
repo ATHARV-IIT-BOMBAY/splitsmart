@@ -48,6 +48,11 @@ export function ExpenseList({ group }: { group: Group }) {
                         </span>
                       )}
                       {e.title}
+                      {e.recurringId && (
+                        <span className="ml-1.5 text-xs" title="Repeats" aria-label="repeats">
+                          🔁
+                        </span>
+                      )}
                     </span>
                     <span className="block text-sm text-ink-soft">{payers} paid</span>
                   </span>

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { newMember, usageCount } from '../core/members'
+import { dueCopies, type Recurring } from '../core/recurring'
 import type { Expense, Group, Member, MemberId, Settlement } from '../core/types'
 
 interface GroupsState {
@@ -19,6 +20,10 @@ interface GroupsState {
   deleteExpense: (groupId: string, expenseId: string) => void
   addSettlement: (groupId: string, settlement: Omit<Settlement, 'id'>) => void
   deleteSettlement: (groupId: string, settlementId: string) => void
+  addRecurring: (groupId: string, rule: Recurring) => void
+  stopRecurring: (groupId: string, ruleId: string) => void
+  /** Adds every repeating expense that has come due by `today` (YYYY-MM-DD). */
+  catchUpRecurring: (today: string) => void
 }
 
 /**
@@ -105,6 +110,20 @@ export const useGroups = create<GroupsState>()(
           update(groupId, (g) => ({
             ...g,
             settlements: [...g.settlements, { ...settlement, id: crypto.randomUUID() }],
+          })),
+
+        addRecurring: (groupId, rule) => update(groupId, (g) => ({ ...g, recurring: [...(g.recurring ?? []), rule] })),
+
+        stopRecurring: (groupId, ruleId) =>
+          update(groupId, (g) => ({ ...g, recurring: (g.recurring ?? []).filter((r) => r.id !== ruleId) })),
+
+        catchUpRecurring: (today) =>
+          set((state) => ({
+            groups: state.groups.map((g) => {
+              if (!g.recurring?.length) return g
+              const { copies, rules } = dueCopies(g.recurring, today, () => crypto.randomUUID())
+              return copies.length ? { ...g, expenses: [...g.expenses, ...copies], recurring: rules } : g
+            }),
           })),
 
         deleteSettlement: (groupId, settlementId) =>

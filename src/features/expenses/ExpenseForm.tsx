@@ -4,6 +4,7 @@ import { categorize, rememberCategory } from '../../lib/categorize'
 import { Avatar, Field, Money } from '../../components/ui'
 import { button, card, input, inputBase } from '../../components/styles'
 import { computeShares } from '../../core/split'
+import { nextDate, type Recurring } from '../../core/recurring'
 import type { Category, Group } from '../../core/types'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
@@ -38,6 +39,8 @@ export function ExpenseForm({ groupId, expenseId }: { groupId: string; expenseId
 function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
   const saveExpense = useGroups((s) => s.saveExpense)
   const deleteExpense = useGroups((s) => s.deleteExpense)
+  const addRecurring = useGroups((s) => s.addRecurring)
+  const stopRecurring = useGroups((s) => s.stopRecurring)
   const memberIds = group.members.map((m) => m.id)
   const existing = group.expenses.find((e) => e.id === expenseId)
 
@@ -47,6 +50,8 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
   const [showProblems, setShowProblems] = useState(false)
   const [suggested, setSuggested] = useState(false)
   const [id] = useState(() => expenseId ?? crypto.randomUUID())
+  const [repeat, setRepeat] = useState<'never' | Recurring['every']>('never')
+  const rule = group.recurring?.find((r) => r.id === existing?.recurringId)
 
   const nameOf = (memberId: string) => group.members.find((m) => m.id === memberId)?.name ?? 'Someone'
   const { expense, problems } = draftToExpense(draft, id, nameOf)
@@ -70,7 +75,16 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
   function submit(event: FormEvent) {
     event.preventDefault()
     if (problems.length > 0) return setShowProblems(true)
-    saveExpense(group.id, expense)
+    if (!existing && repeat !== 'never') {
+      // This is the first copy; the rule adds the next ones when they come due
+      const ruleId = crypto.randomUUID()
+      const { id: _id, date, ...template } = expense
+      void _id
+      addRecurring(group.id, { id: ruleId, every: repeat, next: nextDate(date, repeat), template })
+      saveExpense(group.id, { ...expense, recurringId: ruleId })
+    } else {
+      saveExpense(group.id, existing?.recurringId ? { ...expense, recurringId: existing.recurringId } : expense)
+    }
     back()
   }
 
@@ -211,6 +225,25 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
               <li key={p}>{p}</li>
             ))}
           </ul>
+        )}
+
+        {existing ? (
+          rule && (
+            <p className="flex items-center justify-between gap-3 rounded-xl border-2 border-edge bg-paper px-3 py-2 text-sm">
+              <span>🔁 Repeats every {rule.every}. Next on {rule.next}.</span>
+              <button type="button" className={button.ghost} onClick={() => stopRecurring(group.id, rule.id)}>
+                Stop repeating
+              </button>
+            </p>
+          )
+        ) : (
+          <Field label="Repeat" hint={repeat !== 'never' ? 'Added again automatically each time it comes due.' : undefined}>
+            <select className={input} value={repeat} onChange={(e) => setRepeat(e.target.value as typeof repeat)}>
+              <option value="never">Never</option>
+              <option value="week">Every week</option>
+              <option value="month">Every month (like Wi-Fi or rent)</option>
+            </select>
+          </Field>
         )}
 
         <button type="submit" className={`${button.primary} w-full`}>

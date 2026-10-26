@@ -1,4 +1,5 @@
 import type { Paise } from './money'
+import type { Recurring } from './recurring'
 
 export type MemberId = string
 
@@ -54,6 +55,8 @@ export interface Expense {
   split: Split
   category?: Category
   receiptId?: string
+  /** Set on copies made by a repeating expense (see core/recurring.ts). */
+  recurringId?: string
 }
 
 /** A payment one member made to another to settle up. */
@@ -74,4 +77,5 @@ export interface Group {
   members: Member[]
   expenses: Expense[]
   settlements: Settlement[]
+  recurring?: Recurring[]
 }
