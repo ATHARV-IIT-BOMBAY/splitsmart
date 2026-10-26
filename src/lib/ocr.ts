@@ -14,7 +14,12 @@ let report: (p: OcrProgress) => void = () => {}
 
 function getWorker(): Promise<Worker> {
   worker ??= import('tesseract.js').then(async ({ createWorker, PSM }) => {
+    // Engine files are served by our own site (see scripts/copy-ocr-assets.mjs) so
+    // they can be cached for offline use. Absolute URLs, because the worker runs from a blob.
+    const ours = (path: string) => new URL(path, document.baseURI).href
     const w = await createWorker('eng', 1, {
+      workerPath: ours('tesseract/worker.min.js'),
+      corePath: ours('tesseract/'),
       logger: (m) => report({ stage: m.status === 'recognizing text' ? 'reading' : 'loading', progress: m.progress }),
     })
     // Receipts are one column of lines with varied sizes; keep spacing between words

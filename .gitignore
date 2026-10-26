@@ -28,3 +28,6 @@ dist-ssr
 
 # Local editor/agent settings
 .claude/
+
+# OCR engine copied from node_modules at build time (scripts/copy-ocr-assets.mjs)
+public/tesseract/
