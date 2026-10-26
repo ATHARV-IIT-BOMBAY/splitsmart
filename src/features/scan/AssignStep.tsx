@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar, Field, Money } from '../../components/ui'
 import { button, card, input } from '../../components/styles'
 import { parseRupees } from '../../core/money'
 import { computeShares } from '../../core/split'
-import type { Expense, Group, MemberId } from '../../core/types'
+import { CATEGORIES, CATEGORY_EMOJI } from '../../core/categories'
+import type { Category, Expense, Group, MemberId } from '../../core/types'
+import { categorizeReceipt, rememberCategory, type ModelProgress } from '../../lib/categorize'
 import { today } from '../expenses/draft'
 import { draftToExpense, splitIntoUnits, type ScanDraft } from './draft'
 
@@ -32,6 +34,36 @@ export function AssignStep({
   )
   const [date, setDate] = useState(editing?.date ?? today())
   const [showProblems, setShowProblems] = useState(false)
+  const [sorting, setSorting] = useState<'working' | 'done' | 'failed'>(() =>
+    draft.items.some((i) => !i.category) ? 'working' : 'done',
+  )
+  const [download, setDownload] = useState<ModelProgress | null>(null)
+
+  // Keep the latest draft for the async model result without re-running it
+  const latest = useRef({ draft, onChange })
+  useEffect(() => {
+    latest.current = { draft, onChange }
+  })
+
+  // Sort items into categories with the on-device model (loads on first use)
+  useEffect(() => {
+    if (sorting !== 'working') return
+    const names = latest.current.draft.items.map((i) => i.name)
+    let live = true
+    categorizeReceipt(names, setDownload)
+      .then((categories) => {
+        if (!live) return
+        const { draft: now, onChange: update } = latest.current
+        const byName = new Map(names.map((name, i) => [name, categories[i]]))
+        // Only fill in items the user hasn't categorised meanwhile
+        update({ ...now, items: now.items.map((i) => (i.category ? i : { ...i, category: byName.get(i.name) ?? 'Other' })) })
+        setSorting('done')
+      })
+      .catch(() => live && setSorting('failed'))
+    return () => {
+      live = false
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const meta = { id, title, date, payer, usePrinted }
   const { expense, problems } = draftToExpense(draft, meta)
@@ -46,6 +78,11 @@ export function AssignStep({
     } catch {
       preview = {}
     }
+  }
+
+  function setCategory(itemId: string, name: string, category: Category) {
+    rememberCategory(name, category)
+    onChange({ ...draft, items: draft.items.map((i) => (i.id === itemId ? { ...i, category } : i)) })
   }
 
   const setAssignees = (itemId: string, assignees: MemberId[]) =>
@@ -81,6 +118,15 @@ export function AssignStep({
         <h2 className="text-lg font-bold">Who had what?</h2>
         {unassigned > 0 && <span className="text-sm text-owes">{unassigned} not assigned yet</span>}
       </div>
+      <p className="text-xs text-ink-soft" role="status" aria-live="polite">
+        {sorting === 'working'
+          ? download && download.total > 0 && download.loaded < download.total
+            ? `🧠 Getting the category AI ready, first time only (${(download.loaded / 1e6).toFixed(0)} of ${(download.total / 1e6).toFixed(0)} MB)…`
+            : '🧠 Sorting items into categories…'
+          : sorting === 'done'
+            ? '🧠 Categories by on-device AI. Tap one to change it.'
+            : 'Couldn’t load the category AI. Pick categories yourself.'}
+      </p>
 
       <ul className="space-y-2">
         {draft.items.map((item) => {
@@ -95,6 +141,19 @@ export function AssignStep({
                 </span>
                 <Money paise={parseRupees(item.total) ?? 0} />
               </div>
+              <select
+                value={item.category ?? ''}
+                onChange={(e) => setCategory(item.id, item.name, e.target.value as Category)}
+                aria-label={`Category for ${item.name}`}
+                className="mt-1.5 rounded-full border-2 border-edge bg-page px-2 py-0.5 text-xs font-semibold text-ink"
+              >
+                {!item.category && <option value="">{sorting === 'working' ? 'Sorting…' : 'Category'}</option>}
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {CATEGORY_EMOJI[c]} {c}
+                  </option>
+                ))}
+              </select>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {group.members.map((m) => {
                   const on = item.assignees.includes(m.id)

@@ -1,5 +1,6 @@
 import { Money } from '../../components/ui'
 import { button, card } from '../../components/styles'
+import { CATEGORY_EMOJI } from '../../core/categories'
 import { computeShares } from '../../core/split'
 import type { Group } from '../../core/types'
 import { href } from '../../lib/router'
@@ -40,7 +41,14 @@ export function ExpenseList({ group }: { group: Group }) {
                     {dateLabel.format(new Date(`${e.date}T00:00`))}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{e.title}</span>
+                    <span className="block truncate font-semibold">
+                      {e.category && (
+                        <span title={e.category} aria-label={e.category} className="mr-1.5">
+                          {CATEGORY_EMOJI[e.category]}
+                        </span>
+                      )}
+                      {e.title}
+                    </span>
                     <span className="block text-sm text-ink-soft">{payers} paid</span>
                   </span>
                   <span className="text-right">

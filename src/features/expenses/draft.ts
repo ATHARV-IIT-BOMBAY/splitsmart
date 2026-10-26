@@ -1,6 +1,6 @@
 import { formatINR, parseRupees } from '../../core/money'
 import { validateExpense } from '../../core/split'
-import type { Expense, MemberId, Split } from '../../core/types'
+import type { Category, Expense, MemberId, Split } from '../../core/types'
 
 export type ManualMode = 'equal' | 'exact' | 'percent' | 'shares'
 
@@ -11,6 +11,7 @@ export interface Draft {
   payer: MemberId
   date: string
   mode: ManualMode
+  category?: Category
   /** Who shares the bill in equal mode. */
   included: MemberId[]
   /** Per-person text for exact (₹), percent (%) and shares modes. */
@@ -27,7 +28,13 @@ const toText = (paise: number) => (paise / 100).toFixed(2).replace(/\.00$/, '')
 
 export function draftFromExpense(expense: Expense, memberIds: MemberId[]): Draft {
   const payer = Object.keys(expense.paidBy)[0]
-  const base = { ...newDraft(memberIds, payer), title: expense.title, amount: toText(expense.amountPaise), date: expense.date }
+  const base = {
+    ...newDraft(memberIds, payer),
+    title: expense.title,
+    amount: toText(expense.amountPaise),
+    date: expense.date,
+    category: expense.category,
+  }
   const s = expense.split
   switch (s.mode) {
     case 'equal':
@@ -87,6 +94,7 @@ export function draftToExpense(
   const expense: Expense = {
     id,
     title: draft.title.trim(),
+    category: draft.category,
     date: draft.date || today(),
     amountPaise,
     paidBy: draft.payer ? { [draft.payer]: amountPaise } : {},

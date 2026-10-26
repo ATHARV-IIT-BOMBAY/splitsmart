@@ -2,7 +2,8 @@ import { allocate } from '../../core/allocate'
 import { formatINR, parseRupees, type Paise } from '../../core/money'
 import type { Box, ParsedReceipt } from '../../core/parse'
 import { validateExpense } from '../../core/split'
-import type { Charge, Expense, Item, MemberId } from '../../core/types'
+import { mainCategory } from '../../core/categories'
+import type { Category, Charge, Expense, Item, MemberId } from '../../core/types'
 
 /*
  * The editable receipt behind the review and assign screens. Amounts stay as
@@ -16,6 +17,8 @@ export interface ItemRow {
   unit: string
   total: string
   assignees: MemberId[]
+  /** Set by the on-device model, or by the user tapping the chip. */
+  category?: Category
   bbox?: Box
   /** OCR wasn't sure; cleared as soon as the user edits that field. */
   doubtfulName?: boolean
@@ -76,6 +79,7 @@ export function draftFromExpense(expense: Expense): ScanDraft {
       unit: text(item.unitPaise),
       total: text(item.totalPaise),
       assignees: item.assignees,
+      category: item.category,
     })),
     charges: expense.split.charges.map((c) => ({ id: c.id, label: c.label, kind: c.kind, amount: text(c.paise) })),
     printedTotal: text(expense.amountPaise),
@@ -152,6 +156,7 @@ export function draftToExpense(
     unitPaise: parseRupees(row.unit) ?? undefined,
     totalPaise: parseRupees(row.total) ?? 0,
     assignees: row.assignees,
+    category: row.category,
   }))
   const charges: Charge[] = draft.charges.map((c) => ({
     id: c.id,
@@ -171,6 +176,7 @@ export function draftToExpense(
     amountPaise,
     paidBy: { [meta.payer]: amountPaise },
     split: { mode: 'itemized', items, charges },
+    category: mainCategory(items),
   }
   return { expense, problems: validateExpense(expense) }
 }

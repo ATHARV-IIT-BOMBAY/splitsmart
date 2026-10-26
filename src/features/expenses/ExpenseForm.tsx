@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { CATEGORIES, CATEGORY_EMOJI } from '../../core/categories'
+import { categorize, rememberCategory } from '../../lib/categorize'
 import { Avatar, Field, Money } from '../../components/ui'
 import { button, card, input, inputBase } from '../../components/styles'
 import { computeShares } from '../../core/split'
-import type { Group } from '../../core/types'
+import type { Category, Group } from '../../core/types'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
 import { ReceiptExpense } from './ReceiptExpense'
@@ -43,6 +45,7 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
     existing ? draftFromExpense(existing, memberIds) : newDraft(memberIds, group.meId ?? memberIds[0]),
   )
   const [showProblems, setShowProblems] = useState(false)
+  const [suggested, setSuggested] = useState(false)
   const [id] = useState(() => expenseId ?? crypto.randomUUID())
 
   const nameOf = (memberId: string) => group.members.find((m) => m.id === memberId)?.name ?? 'Someone'
@@ -50,6 +53,19 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
   const preview = problems.length === 0 ? computeShares(expense, memberIds) : null
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }))
   const back = () => navigate('g', group.id)
+
+  // After typing a description, let the on-device model suggest a category
+  async function suggestCategory() {
+    const title = draft.title.trim()
+    if (!title || (draft.category && !suggested)) return
+    try {
+      const [category] = await categorize([title])
+      setDraft((d) => (d.title.trim() === title ? { ...d, category } : d))
+      setSuggested(true)
+    } catch {
+      // Model couldn't load (e.g. offline the first time): the user picks it themselves
+    }
+  }
 
   function submit(event: FormEvent) {
     event.preventDefault()
@@ -87,6 +103,7 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
             className={input}
             value={draft.title}
             onChange={(e) => set({ title: e.target.value })}
+            onBlur={suggestCategory}
             placeholder="Wi-Fi recharge"
             autoFocus={!existing}
           />
@@ -106,6 +123,26 @@ function Form({ group, expenseId }: { group: Group; expenseId?: string }) {
             <input className={input} type="date" value={draft.date} onChange={(e) => set({ date: e.target.value })} />
           </Field>
         </div>
+
+        <Field label="Category" hint={suggested ? 'Suggested by on-device AI. Change it if it’s wrong.' : undefined}>
+          <select
+            className={input}
+            value={draft.category ?? ''}
+            onChange={(e) => {
+              const category = e.target.value as Category
+              set({ category })
+              setSuggested(false)
+              if (draft.title.trim()) rememberCategory(draft.title, category)
+            }}
+          >
+            <option value="">Choose a category</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {CATEGORY_EMOJI[c]} {c}
+              </option>
+            ))}
+          </select>
+        </Field>
 
         <Field label="Paid by">
           <select className={input} value={draft.payer} onChange={(e) => set({ payer: e.target.value })}>
