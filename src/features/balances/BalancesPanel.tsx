@@ -5,7 +5,11 @@ import { computeBalances, directDebtCount } from '../../core/balances'
 import { settleUp, type Transfer } from '../../core/settle'
 import type { Group } from '../../core/types'
 import { today } from '../expenses/draft'
+import { formatINR } from '../../core/money'
+import { upiLink } from '../../core/upi'
+import { shareText } from '../../lib/share'
 import { useGroups } from '../../store/groups'
+import { PaymentCard } from './PaymentCard'
 
 export function BalancesPanel({ group }: { group: Group }) {
   const addSettlement = useGroups((s) => s.addSettlement)
@@ -17,6 +21,16 @@ export function BalancesPanel({ group }: { group: Group }) {
   const member = (id: string) => group.members.find((m) => m.id === id)
   const nameOf = (id: string) => (id === group.meId ? 'You' : member(id)?.name ?? 'Someone')
   const keyOf = (t: Transfer) => `${t.from}-${t.to}`
+
+  /** The whole settle-up as one WhatsApp message, with UPI links where we have them. */
+  function shareSummary() {
+    const lines = transfers.map((t) => {
+      const to = member(t.to)
+      const link = to?.upiId ? upiLink({ upiId: to.upiId, name: to.name, paise: t.paise, note: `SplitSmart ${group.name}` }) : ''
+      return `• ${member(t.from)?.name} → ${to?.name}: ${formatINR(t.paise)}${link ? `\n  ${link}` : ''}`
+    })
+    void shareText([`🧾 ${group.name}: settle up`, ...lines, `${transfers.length} payments settle everything. Sent from SplitSmart`].join('\n'))
+  }
 
   // Let the PAID stamp land before the payment moves to "Payments made"
   function markPaid(t: Transfer) {
@@ -80,40 +94,20 @@ export function BalancesPanel({ group }: { group: Group }) {
                 </span>
               )}
               <span className="text-ink-soft">The fewest payments that settle everything.</span>
+              <button type="button" className={`${button.ghost} ml-auto`} onClick={shareSummary}>
+                Share on WhatsApp
+              </button>
             </div>
             <ul className="space-y-2">
-              {transfers.map((t) => {
-                const from = member(t.from)
-                const to = member(t.to)
-                return (
-                  <li key={keyOf(t)} className={`${card} relative flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3`}>
-                    {stamping === keyOf(t) && (
-                      <span aria-hidden="true" className="stamp pointer-events-none absolute right-6 top-2">
-                        PAID
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1" aria-hidden="true">
-                      {from && <Avatar member={from} />}
-                      <span className="text-ink-soft">→</span>
-                      {to && <Avatar member={to} />}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="font-medium">{nameOf(t.from)}</span>
-                      <span className="text-ink-soft"> pays </span>
-                      <span className="font-medium">{t.to === group.meId ? 'you' : nameOf(t.to)}</span>
-                    </span>
-                    <Money paise={t.paise} className="text-lg font-semibold" />
-                    <button
-                      type="button"
-                      className={`${button.secondary} w-full sm:w-auto`}
-                      onClick={() => markPaid(t)}
-                      disabled={stamping !== null}
-                    >
-                      Mark paid
-                    </button>
-                  </li>
-                )
-              })}
+              {transfers.map((t) => (
+                <PaymentCard
+                  key={keyOf(t)}
+                  group={group}
+                  transfer={t}
+                  stamping={stamping === keyOf(t)}
+                  onMarkPaid={() => markPaid(t)}
+                />
+              ))}
             </ul>
           </>
         )}
