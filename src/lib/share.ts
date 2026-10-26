@@ -16,7 +16,8 @@ export async function shareText(text: string): Promise<void> {
 }
 
 /** QR code for any text, as an image URL. The library loads only when needed. */
-export async function qrDataUrl(text: string): Promise<string> {
+export async function qrDataUrl(text: string, level: 'L' | 'M' = 'M'): Promise<string> {
   const QRCode = await import('qrcode')
-  return QRCode.toDataURL(text, { margin: 1, width: 280, errorCorrectionLevel: 'M' })
+  // Low error correction fits more data, for long group links
+  return QRCode.toDataURL(text, { margin: 1, width: level === 'L' ? 360 : 280, errorCorrectionLevel: level })
 }

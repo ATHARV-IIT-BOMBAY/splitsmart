@@ -1,17 +1,31 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { encodeGroup, parseGroup } from '../../core/backup'
 import EmptyState from '../../components/EmptyState'
 import { ThemeToggle } from '../../components/ThemeToggle'
 import { AvatarStack, Money } from '../../components/ui'
 import { button, card } from '../../components/styles'
 import { computeBalances } from '../../core/balances'
 import type { Group } from '../../core/types'
-import { href } from '../../lib/router'
+import { href, navigate } from '../../lib/router'
 import { useGroups } from '../../store/groups'
 import { NewGroupSheet } from './NewGroupSheet'
 
 export function Dashboard() {
   const groups = useGroups((s) => s.groups)
   const [creating, setCreating] = useState(false)
+  const [importError, setImportError] = useState('')
+  const backupInput = useRef<HTMLInputElement>(null)
+
+  // A backup file goes through the same checks and preview as a shared link
+  async function importBackup(file: File) {
+    try {
+      const group = parseGroup(JSON.parse(await file.text()))
+      setImportError('')
+      navigate('import', await encodeGroup(group))
+    } catch (error) {
+      setImportError(error instanceof SyntaxError ? 'That file isn’t a SplitSmart backup.' : (error as Error).message)
+    }
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
@@ -27,10 +41,31 @@ export function Dashboard() {
           <ThemeToggle />
         </div>
       </header>
-      {groups.length > 0 && (
-        <button type="button" className={`${button.primary} mb-5 w-full sm:w-auto`} onClick={() => setCreating(true)}>
-          + New group
+      <div className="mb-5 flex gap-2">
+        {groups.length > 0 && (
+          <button type="button" className={`${button.primary} flex-1 sm:flex-none`} onClick={() => setCreating(true)}>
+            + New group
+          </button>
+        )}
+        <button type="button" className={button.secondary} onClick={() => backupInput.current?.click()}>
+          Import
         </button>
+        <input
+          ref={backupInput}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            e.target.value = ''
+            if (file) void importBackup(file)
+          }}
+        />
+      </div>
+      {importError && (
+        <p role="alert" className="mb-4 text-sm text-owes">
+          {importError}
+        </p>
       )}
 
       {groups.length === 0 ? (

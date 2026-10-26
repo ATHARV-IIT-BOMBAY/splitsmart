@@ -1,6 +1,7 @@
 import { ExpenseForm } from './features/expenses/ExpenseForm'
 import { Dashboard } from './features/groups/Dashboard'
 import { GroupPage } from './features/groups/GroupPage'
+import { ImportPage } from './features/groups/ImportPage'
 import { HelpPage } from './features/help/HelpPage'
 import { ScanPage } from './features/scan/ScanPage'
 import { useRoute } from './lib/router'
@@ -9,6 +10,7 @@ function App() {
   const [section, groupId, sub, expenseId] = useRoute()
 
   if (section === 'help') return <HelpPage />
+  if (section === 'import' && groupId) return <ImportPage code={groupId} />
   if (section === 'g' && groupId && sub === 'expense' && expenseId) {
     return <ExpenseForm groupId={groupId} expenseId={expenseId === 'new' ? undefined : expenseId} />
   }

@@ -8,6 +8,8 @@ interface GroupsState {
   createGroup: (name: string, myName: string, friendNames: string[]) => string
   renameGroup: (groupId: string, name: string) => void
   deleteGroup: (groupId: string) => void
+  /** Adds a group from a link or backup; `replace` overwrites the copy with the same id. */
+  importGroup: (group: Group, options: { meId?: MemberId; replace: boolean }) => string
   addMember: (groupId: string, name: string) => void
   /** Change a member's name, colour, emoji or UPI ID. */
   updateMember: (groupId: string, memberId: MemberId, changes: Partial<Omit<Member, 'id'>>) => void
@@ -49,6 +51,16 @@ export const useGroups = create<GroupsState>()(
         },
 
         renameGroup: (groupId, name) => update(groupId, (g) => ({ ...g, name })),
+
+        importGroup(group, { meId, replace }) {
+          const exists = get().groups.some((g) => g.id === group.id)
+          const id = exists && !replace ? crypto.randomUUID() : group.id
+          const imported = { ...group, id, meId }
+          set((state) => ({
+            groups: exists && replace ? state.groups.map((g) => (g.id === id ? imported : g)) : [imported, ...state.groups],
+          }))
+          return id
+        },
 
         deleteGroup: (groupId) => set((state) => ({ groups: state.groups.filter((g) => g.id !== groupId) })),
 

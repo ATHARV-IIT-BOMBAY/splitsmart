@@ -6,6 +6,7 @@ import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
 import { BalancesPanel } from '../balances/BalancesPanel'
 import { ExpenseList } from '../expenses/ExpenseList'
+import { ShareGroup } from './ShareGroup'
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
@@ -49,7 +50,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
             </p>
           </div>
           <button type="button" className={button.ghost} onClick={() => setEditing(true)}>
-            Edit
+            Share · Edit
           </button>
         </div>
       </header>
@@ -174,12 +175,13 @@ function EditGroupSheet({ group, open, onClose }: { group: Group; open: boolean;
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="Edit group">
+    <Sheet open={open} onClose={onClose} title="Group settings">
       <form onSubmit={save} className="space-y-4">
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} aria-label="Group name" />
         <button type="submit" className={`${button.primary} w-full`}>
           Save
         </button>
+        <ShareGroup group={group} />
         <button type="button" className={`${button.danger} w-full`} onClick={remove}>
           Delete group
         </button>
