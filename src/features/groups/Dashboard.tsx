@@ -20,7 +20,12 @@ export function Dashboard() {
           <h1 className="text-3xl font-extrabold tracking-tight">SplitSmart</h1>
           <p className="text-ink-soft">Scan it. Tap it. Settled.</p>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <a href={href('help')} className={button.ghost} aria-label="Help">
+            Help
+          </a>
+          <ThemeToggle />
+        </div>
       </header>
       {groups.length > 0 && (
         <button type="button" className={`${button.primary} mb-5 w-full sm:w-auto`} onClick={() => setCreating(true)}>
