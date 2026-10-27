@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Avatar, Money } from '../../components/ui'
 import { button, card } from '../../components/styles'
 import { computeBalances, directDebtCount } from '../../core/balances'
+import { groupToCsv } from '../../core/csv'
 import { settleUp, type Transfer } from '../../core/settle'
 import type { Group } from '../../core/types'
 import { today } from '../expenses/draft'
@@ -10,6 +11,20 @@ import { upiLink } from '../../core/upi'
 import { shareText } from '../../lib/share'
 import { useGroups } from '../../store/groups'
 import { PaymentCard } from './PaymentCard'
+
+/** Download the group's expenses as a CSV file that opens cleanly in Excel and Google Sheets. */
+function downloadCsv(group: Group) {
+  // The leading BOM makes Excel read the file as UTF-8, so ₹ doesn't turn into garbage
+  const blob = new Blob(['\uFEFF' + groupToCsv(group)], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${group.name.replace(/[\\/:*?"<>|]/g, '_')}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
 
 export function BalancesPanel({ group }: { group: Group }) {
   const addSettlement = useGroups((s) => s.addSettlement)
@@ -135,6 +150,15 @@ export function BalancesPanel({ group }: { group: Group }) {
           </ul>
         </section>
       )}
+
+      <section aria-labelledby="export-heading">
+        <h2 id="export-heading" className="mb-2 font-bold">
+          Export
+        </h2>
+        <button type="button" className={button.secondary} onClick={() => downloadCsv(group)}>
+          Download CSV
+        </button>
+      </section>
     </div>
   )
 }
