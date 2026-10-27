@@ -14,6 +14,27 @@ Who it's for: Perfect for hostel rooms, wings, group trips, and late-night cante
 
 What makes it different: Instead of typing everything out, you just scan the receipt and tap who ate what. It automatically figures out how to settle up with the fewest payments possible, and keeps everything right on your phone.
 
+## Features
+
+### Core
+* **Scan and fix:** Read receipts automatically and tap to correct any unsure prices.
+* **Four split modes:** Divide items equally, by exact amounts, percentages, or shares.
+* **Fair tax split:** Divide tax and tips based only on what each person actually ate.
+* **Fewest payments:** Settle group debts with the absolute minimum number of transactions.
+
+### Advanced
+* **Auto-categories:** Sort expenses (like Food or Travel) using on-device AI.
+* **UPI & QR payments:** Settle balances directly with one-tap UPI or QR codes.
+* **WhatsApp reminders:** Send pending payment nudges to friends with one tap.
+* **Recurring bills:** Set up repeating group expenses like monthly rent or Wi-Fi.
+* **PDF reports:** Export clean summaries of your group's expenses and settlements.
+
+### Extras
+* **Share groups:** Invite friends instantly via a link or QR code.
+* **Works offline:** Scan receipts and calculate splits completely without internet.
+* **Light & dark mode:** Switch themes easily from the home screen.
+* **Avatars:** Pick custom profile pictures for group members.
+
 ## Setup
 
 Requires Node.js 22+.
