@@ -42,8 +42,8 @@ export function HelpPage() {
           How settle-up works
         </h2>
         <p className="mt-2 text-ink-soft">
-          We simplify who owes who so you make fewer transfers. Instead of paying everyone back one by one, you just
-          make a single payment to clear your balance.
+          We simplify who owes who so the group makes the fewest payments possible. Instead of paying everyone back
+          one by one, most people make just one payment to clear their balance.
         </p>
       </section>
 

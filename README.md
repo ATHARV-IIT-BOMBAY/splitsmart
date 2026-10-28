@@ -15,7 +15,7 @@ Built by **Team Web Architects** for Web Brawl GC 2026.
 
 ## Why SplitSmart?
 
-What problem it solves: Splitting hostel bills by hand sucks. This app gets rid of the messy mental math, forgotten debts, and having to send those awkward WhatsApp reminders to your friends.
+What problem it solves: Splitting hostel bills by hand is painful. This app gets rid of the messy mental math, forgotten debts, and having to send those awkward WhatsApp reminders to your friends.
 
 Who it's for: Perfect for hostel rooms, wings, group trips, and late-night canteen runs.
 
@@ -48,18 +48,18 @@ No sign-up. Open the [live app](https://atharv-iit-bombay.github.io/splitsmart/)
 
 | To see | Do this |
 |---|---|
-| Receipt scanning | Create a group → **Scan receipt** → **Try a sample bill** → **Read receipt** |
-| Fixing the scanner | On **Check the items**, tap any yellow-highlighted price. The banner checks items + tax against the printed total. |
+| Receipt scanning | Create a group → **Scan receipt** → **Try a sample bill** → **Read receipt**. The sample is a ₹840 canteen bill with GST, and the banner confirms items + tax match the total. |
+| Fixing the scanner | Scan → **Or a tough real one, with things to fix** (a crumpled campus bill). Unsure words are highlighted yellow; tap **N values to check ↓** to jump to each one. The banner checks items + tax against the printed total. |
 | Item assignment | On **Who had what**, tap faces on each item, **Everyone**, or **Split into N** for things like Maggi × 3 |
 | AI categories | Category chips appear on items, and on manual expenses after you type a description |
 | Fair tax split | Open a scanned expense → **Each person's share** |
 | Fewest payments | **Balances** tab: the chip shows how many IOUs collapse into how many payments |
-| UPI and reminders | On a payment card: **Add …’s UPI ID** → **Pay with UPI** / **QR code**, or **Remind** |
+| UPI and reminders | On a payment card: **Add …’s UPI ID** → **Pay with UPI** on a phone, **Pay by QR** on a laptop, or **Remind** |
 | Share without a server | Group → **Share · Edit** → link, QR code or backup file |
 | Exports | **Balances** → **Report (PDF)** or **Download CSV** |
 | Spending charts | Bottom of the **Balances** tab: totals by category and by person |
 | Repeating bills | **+ Add manually** → **Repeat** (below Split) → every week or month, like Wi-Fi or rent |
-| Offline | Open the app once, turn on airplane mode, reload. Scanning still works. |
+| Offline | Open the app once and wait about 10 seconds (the text reader caches itself), turn on airplane mode, reload. Scanning still works. |
 
 ### The 9 required test cases
 
@@ -69,7 +69,7 @@ Results from our device testing are in [docs/testing.md](docs/testing.md).
 |---|---|---|
 | 1 | Clear bill with GST | Reads items, tax lines and total, then checks they add up |
 | 2 | Faded thermal receipt | Boosts contrast, re-reads if reading stops early, highlights unsure words |
-| 3 | Rotated photo | Auto-retries at 180°, 90° and 270°; manual Rotate and Straighten too |
+| 3 | Rotated photo | Straightens tilted photos automatically, retries at 180°, 90° and 270°, and offers Rotate, Straighten and Retake |
 | 4 | Not a receipt | "Couldn’t read this photo" with Retake, Rotate, or Type items |
 | 5 | No printed total | Works the total out from the items and asks you to check it |
 | 6 | ₹100 split three ways | 33.34 + 33.33 + 33.33, never 99.99 |
@@ -83,8 +83,8 @@ Everything runs in the browser. There is no server and no account, and receipt p
 
 ### Receipt reading
 
-1. **Find the paper.** The photo is turned upright using its EXIF data, and the brightest colourless region is suggested as the crop. You can drag the corners or straighten it.
-2. **Clean it up.** The crop is converted to greyscale with a contrast stretch. We also tried auto-deskew, adaptive thresholding and upscaling, measured them against our receipt set, and dropped them because they made results worse.
+1. **Find the paper.** The photo is turned upright using its EXIF data, and the brightest colourless region is suggested as the crop. The tilt is found by trying every angle up to 45° and keeping the one where the rows of print line up most sharply (a projection profile), and the photo is straightened by that much. You can still drag the corners or adjust it.
+2. **Clean it up.** The crop is converted to greyscale with a contrast stretch. We also tried adaptive thresholding and upscaling, measured them against our receipt set, and dropped them because they made results worse.
 3. **Read it.** [Tesseract.js](https://github.com/naptha/tesseract.js) runs in a Web Worker. Its engine files are bundled with the app, so scanning works offline.
 4. **Understand it.** A parser written for Indian bills turns the text into items, charges and a total. It handles ₹ misread as "3", lost decimal points, split decimals like "253, 00", CGST/SGST lines, round-off and wide invoice tables. When the items plus charges don't match the printed total, the screen says so.
 

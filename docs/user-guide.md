@@ -11,7 +11,7 @@ Quickly check the list. If anything is highlighted in yellow, just tap to fix it
 Tap your friends' faces to tag who bought what. If you all shared a pizza, just hit **Everyone**. If an item was bought more than once (like Maggi × 3), you will see options like **Split into 3** to easily divide the quantities.
 
 ### 💸 Add an expense without a receipt
-No receipt? Tap **Add manually**. You can split the bill equally, type in exact amounts, or use percentages. You can also tap the new **category chips** to easily organize and label your expenses.
+No receipt? Tap **Add manually**. You can split the bill equally, type in exact amounts, use percentages, or give people shares (like 2:1:1). Pick a **category** from the list, or let the on-device AI suggest one after you type the description.
 
 ### 🤝 Settle up
 When it's time to pay, the app automatically does the math so your group makes as few transfers as possible. You can settle balances instantly using the **Pay with UPI** button. Once someone pays you back, just tap **Mark paid**.
