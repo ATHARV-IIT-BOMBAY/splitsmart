@@ -32,7 +32,7 @@ Laptop Chrome set to a phone-size screen (375×812), with photos from `fixtures/
 | Test | Receipt | What happened | Result |
 |---|---|---|---|
 | Clear bill | H2 Canteen (receipt-08) | All 4 items and prices right, ₹253. Asked to check the total. | ✅ |
-| Clear bill with GST | Gulmohar (receipt-06) | 13 items read, CGST read as tax (not an item). Two misread values highlighted yellow to fix. | ⚠️ |
+| Clear bill with GST | Gulmohar (receipt-06) | 13 items read, CGST read as tax (not an item). Misread values are highlighted yellow to fix (the highlight was invisible before 28/10; fixed). | ⚠️ |
 | Rotated | Domino's (receipt-07) | Before: "Couldn't read this photo". Now the app straightens the tilt by itself (33°) and reads 4 dishes with the right prices; a few values to check. | ✅ |
 | Faded | Aromas (receipt-10) | "Couldn't read this photo" with Retake / Rotate / Type items. The photo is small (768 px wide), so the text is too tiny for the scanner. | ⚠️ |
 | Not a receipt | App icon | "Couldn't read this photo" with Retake / Type items | ✅ |

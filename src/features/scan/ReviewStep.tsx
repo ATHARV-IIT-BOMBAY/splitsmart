@@ -1,28 +1,35 @@
 import { useState } from 'react'
-import { button, card, inputBase } from '../../components/styles'
+import { button, card, inputShape } from '../../components/styles'
 import { formatINR } from '../../core/money'
 import type { Box } from '../../core/parse'
 import type { PreparedImage } from '../../lib/image'
 import { describeDifference, editItem, emptyCharge, emptyItem, reviewProblems, totals, type ScanDraft } from './draft'
 
-const field = `${inputBase} py-1.5`
-const doubtful = 'bg-highlight border-accent'
+/** Unsure values get the yellow highlighter look; the two colour sets never sit on one field. */
+const field = (unsure?: boolean) => `${inputShape} py-1.5 ${unsure ? 'bg-highlight border-accent' : 'bg-paper border-edge'}`
 
-/** Shows just one line of the receipt photo, so you can compare without scrolling. */
+/**
+ * Shows just one line of the receipt photo, so you can compare without
+ * scrolling. It shrinks to fit narrow screens, so the price column is never cut off.
+ */
 function LineCrop({ image, bbox }: { image: PreparedImage; bbox: Box }) {
   const pad = 4
-  const height = 26
-  const scale = height / (bbox.y1 - bbox.y0 + pad * 2)
+  const x0 = Math.max(0, bbox.x0 - pad)
+  const y0 = Math.max(0, bbox.y0 - pad)
+  const w = Math.min(image.width, bbox.x1 + pad) - x0
+  const h = Math.min(image.height, bbox.y1 + pad) - y0
+  // Background positions in % are relative to (image − crop), so guard the full-width case
+  const at = (offset: number, size: number, total: number) => (total > size ? (offset / (total - size)) * 100 : 0)
   return (
     <div
       aria-hidden="true"
-      className="mb-1 max-w-full overflow-hidden rounded border border-dashed border-line"
+      className="mb-1 w-full overflow-hidden rounded border border-dashed border-line"
       style={{
-        height,
-        width: (bbox.x1 - bbox.x0 + pad * 2) * scale,
+        maxWidth: (w * 26) / h,
+        aspectRatio: `${w} / ${h}`,
         backgroundImage: `url(${image.url})`,
-        backgroundSize: `${image.width * scale}px ${image.height * scale}px`,
-        backgroundPosition: `${-(bbox.x0 - pad) * scale}px ${-(bbox.y0 - pad) * scale}px`,
+        backgroundSize: `${(image.width / w) * 100}% auto`,
+        backgroundPosition: `${at(x0, w, image.width)}% ${at(y0, h, image.height)}%`,
       }}
     />
   )
@@ -46,6 +53,15 @@ export function ReviewStep({
   const toCheck =
     draft.items.filter((i) => i.doubtfulName || i.doubtfulAmount).length + draft.charges.filter((c) => c.doubtful).length
   const activeBox = [...draft.items, ...draft.charges].find((r) => r.id === active)?.bbox
+
+  /** Jumps to the next yellow field, so fixing them is tap, type, tap. */
+  function nextUnsure() {
+    const fields = [...document.querySelectorAll<HTMLInputElement>('input[data-unsure]')]
+    const after = fields.find((f) => f.compareDocumentPosition(document.activeElement ?? document.body) & Node.DOCUMENT_POSITION_PRECEDING)
+    const target = after ?? fields[0]
+    target?.focus()
+    target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  }
 
   function next(usePrinted: boolean) {
     if (problems.length > 0) return setShowProblems(true)
@@ -79,9 +95,13 @@ export function ReviewStep({
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold">Check the items</h2>
           {toCheck > 0 && (
-            <span className="rounded-full bg-highlight px-3 py-1 text-xs font-semibold">
-              {toCheck} {toCheck === 1 ? 'value' : 'values'} to check
-            </span>
+            <button
+              type="button"
+              className="rounded-full border-2 border-accent bg-highlight px-3 py-1 text-xs font-semibold text-ink"
+              onClick={nextUnsure}
+            >
+              {toCheck} {toCheck === 1 ? 'value' : 'values'} to check ↓
+            </button>
           )}
         </div>
 
@@ -91,21 +111,23 @@ export function ReviewStep({
               {item.bbox && <LineCrop image={image} bbox={item.bbox} />}
               <div className="flex items-center gap-2">
                 <input
-                  className={`${field} min-w-0 flex-1 ${item.doubtfulName ? doubtful : ''}`}
+                  className={`${field(item.doubtfulName)} min-w-0 flex-1`}
+                  data-unsure={item.doubtfulName || undefined}
                   value={item.name}
                   onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { name: e.target.value }) : r)) })}
                   placeholder="Item name"
                   aria-label={`Item ${i + 1} name`}
                 />
                 <input
-                  className={`${field} money w-12 text-center`}
+                  className={`${field()} money w-12 text-center`}
                   value={item.qty}
                   inputMode="numeric"
                   onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { qty: e.target.value }) : r)) })}
                   aria-label={`Item ${i + 1} quantity`}
                 />
                 <input
-                  className={`${field} money w-24 text-right ${item.doubtfulAmount ? doubtful : ''}`}
+                  className={`${field(item.doubtfulAmount)} money w-24 text-right`}
+                  data-unsure={item.doubtfulAmount || undefined}
                   value={item.total}
                   inputMode="decimal"
                   onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { total: e.target.value }) : r)) })}
@@ -128,13 +150,14 @@ export function ReviewStep({
               {charge.bbox && <LineCrop image={image} bbox={charge.bbox} />}
               <div className="flex items-center gap-2">
                 <input
-                  className={`${field} min-w-0 flex-1 text-ink-soft`}
+                  className={`${field()} min-w-0 flex-1 text-ink-soft`}
                   value={charge.label}
                   onChange={(e) => onChange({ ...draft, charges: draft.charges.map((c) => (c.id === charge.id ? { ...c, label: e.target.value } : c)) })}
                   aria-label="Charge name"
                 />
                 <input
-                  className={`${field} money w-24 text-right ${charge.doubtful ? doubtful : ''}`}
+                  className={`${field(charge.doubtful)} money w-24 text-right`}
+                  data-unsure={charge.doubtful || undefined}
                   value={charge.amount}
                   inputMode="decimal"
                   onChange={(e) =>
@@ -167,7 +190,7 @@ export function ReviewStep({
         <label className="flex items-center justify-between gap-3">
           <span className="font-semibold">Total on receipt</span>
           <input
-            className={`${field} money w-32 text-right`}
+            className={`${field()} money w-32 text-right`}
             value={draft.printedTotal}
             inputMode="decimal"
             placeholder="not found"

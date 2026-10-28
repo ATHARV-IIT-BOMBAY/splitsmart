@@ -12,9 +12,12 @@ export const button = {
   danger: `${chunky} bg-paper font-semibold text-owes`,
 }
 
+/** Text field shape without colours, for fields that pick their own (e.g. the yellow "check this" look). */
+export const inputShape =
+  'rounded-xl border-2 px-3 py-2.5 text-ink placeholder:text-ink-soft/70 transition-shadow focus:shadow-[3px_3px_0_var(--accent)] focus:outline-none'
+
 /** Text field look without a width, for inputs that size themselves. */
-export const inputBase =
-  'rounded-xl border-2 border-edge bg-paper px-3 py-2.5 text-ink placeholder:text-ink-soft/70 transition-shadow focus:shadow-[3px_3px_0_var(--accent)] focus:outline-none'
+export const inputBase = `${inputShape} border-edge bg-paper`
 
 export const input = `w-full ${inputBase}`
 
