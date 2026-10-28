@@ -25,6 +25,18 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 |15|Install|Chrome menu → Add to Home screen → opens like an app|SplitSmart is added to the home screen|works|✅ |
 |16|Try a sample bill|Scan receipt → Try a sample bill |An older uploaded bill appears that can be scanned|works|✅|
 
+## Final re-run (28/10/2026)
+
+Laptop Chrome set to a phone-size screen (375×812), with photos from `fixtures/receipts/`.
+
+| Test | Receipt | What happened | Result |
+|---|---|---|---|
+| Clear bill | H2 Canteen (receipt-08) | All 4 items and prices right, ₹253. Asked to check the total. | ✅ |
+| Clear bill with GST | Gulmohar (receipt-06) | 13 items read, CGST read as tax (not an item). Two misread values highlighted yellow to fix. | ⚠️ |
+| Rotated | Domino's (receipt-07) | "Couldn't read this photo" with Retake / Rotate / Type items | ⚠️ |
+| Faded | Aromas (receipt-10) | "Couldn't read this photo" with Retake / Rotate / Type items. The photo is small (768 px wide), so the text is too tiny for the scanner. | ⚠️ |
+| Not a receipt | App icon | "Couldn't read this photo" with Retake / Type items | ✅ |
+
 ## Bugs found
 
 | What I did | What went wrong | Phone and browser | Status |
