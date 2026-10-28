@@ -50,6 +50,7 @@ No sign-up. Open the [live app](https://atharv-iit-bombay.github.io/splitsmart/)
 | UPI and reminders | On a payment card: **Add …’s UPI ID** → **Pay with UPI** / **QR code**, or **Remind** |
 | Share without a server | Group → **Share · Edit** → link, QR code or backup file |
 | Exports | **Balances** → **Report (PDF)** or **Download CSV** |
+| Spending charts | Bottom of the **Balances** tab: totals by category and by person |
 | Offline | Open the app once, turn on airplane mode, reload. Scanning still works. |
 
 ### The 9 required test cases

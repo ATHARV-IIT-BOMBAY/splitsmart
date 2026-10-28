@@ -12,6 +12,7 @@ import { href } from '../../lib/router'
 import { shareText } from '../../lib/share'
 import { useGroups } from '../../store/groups'
 import { PaymentCard } from './PaymentCard'
+import { SpendingPanel } from './SpendingPanel'
 
 /** Download the group's expenses as a CSV file that opens cleanly in Excel and Google Sheets. */
 function downloadCsv(group: Group) {
@@ -161,6 +162,8 @@ export function BalancesPanel({ group }: { group: Group }) {
           </ul>
         </section>
       )}
+
+      <SpendingPanel group={group} />
     </div>
   )
 }
