@@ -8,10 +8,12 @@ import { computeBalances } from '../../core/balances'
 import type { Group } from '../../core/types'
 import { href, navigate } from '../../lib/router'
 import { useGroups } from '../../store/groups'
+import { demoGroup } from './demo'
 import { NewGroupSheet } from './NewGroupSheet'
 
 export function Dashboard() {
   const groups = useGroups((s) => s.groups)
+  const importGroup = useGroups((s) => s.importGroup)
   const [creating, setCreating] = useState(false)
   const [importError, setImportError] = useState('')
   const backupInput = useRef<HTMLInputElement>(null)
@@ -41,27 +43,30 @@ export function Dashboard() {
           <ThemeToggle />
         </div>
       </header>
-      <div className="mb-5 flex gap-2">
-        {groups.length > 0 && (
-          <button type="button" className={`${button.primary} flex-1 sm:flex-none`} onClick={() => setCreating(true)}>
-            + New group
-          </button>
-        )}
-        <button type="button" className={button.secondary} onClick={() => backupInput.current?.click()}>
-          Import
-        </button>
-        <input
-          ref={backupInput}
-          type="file"
-          accept="application/json,.json"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            e.target.value = ''
-            if (file) void importBackup(file)
-          }}
-        />
-      </div>
+      {groups.length > 0 && (
+        <>
+          <Overview groups={groups} />
+          <div className="mb-5 flex gap-2">
+            <button type="button" className={`${button.primary} flex-1 sm:flex-none`} onClick={() => setCreating(true)}>
+              + New group
+            </button>
+            <button type="button" className={button.secondary} onClick={() => backupInput.current?.click()}>
+              Import
+            </button>
+          </div>
+        </>
+      )}
+      <input
+        ref={backupInput}
+        type="file"
+        accept="application/json,.json"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          e.target.value = ''
+          if (file) void importBackup(file)
+        }}
+      />
       {importError && (
         <p role="alert" className="mb-4 text-sm text-owes">
           {importError}
@@ -71,10 +76,24 @@ export function Dashboard() {
       {groups.length === 0 ? (
         <EmptyState
           title="Start your first group"
-          description="Share expenses with anyone. Make a group, add friends, and start splitting bills."
+          description="Split hostel bills fairly, item by item, and settle up with the fewest payments."
           actionLabel="Create a group"
           onAction={() => setCreating(true)}
-        />
+        >
+          <button
+            type="button"
+            className={`${button.secondary} w-full`}
+            onClick={() => {
+              const demo = demoGroup()
+              navigate('g', importGroup(demo, { meId: demo.members[0].id, replace: false }))
+            }}
+          >
+            Try a demo group
+          </button>
+          <button type="button" className={`${button.ghost} text-xs`} onClick={() => backupInput.current?.click()}>
+            Have a backup file? Import it
+          </button>
+        </EmptyState>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {groups.map((group) => (
@@ -90,9 +109,36 @@ export function Dashboard() {
   )
 }
 
+/** Your money across every group, at a glance. */
+function Overview({ groups }: { groups: Group[] }) {
+  let owed = 0
+  let owe = 0
+  for (const g of groups) {
+    const mine = g.meId ? computeBalances(g)[g.meId] ?? 0 : 0
+    if (mine > 0) owed += mine
+    else owe -= mine
+  }
+  return (
+    <div className="mb-5 grid grid-cols-2 gap-3">
+      <div className={`${card} p-4`}>
+        <p className="text-sm text-ink-soft">You’re owed</p>
+        <Money paise={owed} className={`text-xl font-bold ${owed > 0 ? 'text-owed' : ''}`} />
+      </div>
+      <div className={`${card} p-4`}>
+        <p className="text-sm text-ink-soft">You owe</p>
+        <Money paise={owe} className={`text-xl font-bold ${owe > 0 ? 'text-owes' : ''}`} />
+      </div>
+    </div>
+  )
+}
+
 function GroupCard({ group }: { group: Group }) {
   const spent = group.expenses.reduce((sum, e) => sum + e.amountPaise, 0)
-  const mine = group.meId ? computeBalances(group)[group.meId] ?? 0 : 0
+  const balances = computeBalances(group)
+  const mine = group.meId ? balances[group.meId] ?? 0 : 0
+  // Whoever owes the most is (jokingly) buying the next round
+  const [debtorId, debt] = Object.entries(balances).sort((a, b) => a[1] - b[1])[0] ?? ['', 0]
+  const debtor = debt < 0 ? group.members.find((m) => m.id === debtorId) : undefined
 
   return (
     <a href={href('g', group.id)} className={`${card} block p-4 transition hover:border-accent`}>
@@ -114,6 +160,11 @@ function GroupCard({ group }: { group: Group }) {
           </dd>
         </div>
       </dl>
+      {debtor && (
+        <p className="mt-3 border-t border-dashed border-line pt-2 text-xs text-ink-soft">
+          🍕 Next treat’s on {debtor.id === group.meId ? 'you' : debtor.name}
+        </p>
+      )}
     </a>
   )
 }
