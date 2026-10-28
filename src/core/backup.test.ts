@@ -49,4 +49,15 @@ describe('group backup and links', () => {
   ])('rejects %s', (_, bad) => {
     expect(() => parseGroup(bad)).toThrow('This isn’t a valid SplitSmart group')
   })
+
+  it('rejects unknown categories, charge kinds and avatar styles from a crafted link', () => {
+    const tweak = (change: (g: Record<string, any>) => void) => {
+      const copy = JSON.parse(JSON.stringify(group))
+      change(copy)
+      return () => parseGroup(copy)
+    }
+    expect(tweak((g) => (g.expenses[0].category = 'Bitcoin'))).toThrow(/category/)
+    expect(tweak((g) => (g.members[0].avatar = { style: 'zzz', seed: 'Mia' }))).toThrow(/avatar/)
+    expect(tweak((g) => (g.members[0].avatar = { style: 'bottts', seed: 'Mia' }))).not.toThrow()
+  })
 })

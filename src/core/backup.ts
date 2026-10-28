@@ -1,5 +1,6 @@
 import { validateExpense } from './split'
-import type { Expense, Group, Member, Settlement, Split } from './types'
+import { CATEGORIES } from './categories'
+import type { AvatarStyle, Category, Charge, Expense, Group, Member, Settlement, Split } from './types'
 
 /*
  * Moving a group between phones without a server: as a JSON backup file, or
@@ -17,6 +18,14 @@ class BadGroup extends Error {}
 const fail = (what: string): never => {
   throw new BadGroup(`This isn’t a valid SplitSmart group (${what}).`)
 }
+
+const AVATAR_STYLES: AvatarStyle[] = ['adventurer', 'bottts', 'funEmoji', 'lorelei', 'thumbs']
+const CHARGE_KINDS: Charge['kind'][] = ['tax', 'service', 'discount', 'roundoff', 'delivery', 'adjustment', 'other']
+/** One of `allowed`, or a clear failure: a crafted link can't sneak in unknown values. */
+const oneOf = <T extends string>(v: unknown, allowed: readonly T[], what: string): T =>
+  allowed.includes(v as T) ? (v as T) : fail(what)
+/** Categories are optional, but must be a known one when present. */
+const category = (v: unknown): Category | undefined => (v === undefined ? undefined : oneOf(v, CATEGORIES, 'category'))
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 const str = (v: unknown, what: string, max = 200): string =>
@@ -38,7 +47,7 @@ function member(v: unknown): Member {
   const out: Member = { id: str(m.id, 'member id', 64), name: str(m.name, 'member name', 60), color: str(m.color, 'member colour', 30) }
   if (m.emoji !== undefined) out.emoji = str(m.emoji, 'member emoji', 16)
   if (m.upiId !== undefined) out.upiId = str(m.upiId, 'UPI ID', 120)
-  if (isObject(m.avatar)) out.avatar = { style: str(m.avatar.style, 'avatar', 20) as never, seed: str(m.avatar.seed, 'avatar', 40) }
+  if (isObject(m.avatar)) out.avatar = { style: oneOf(m.avatar.style, AVATAR_STYLES, 'avatar'), seed: str(m.avatar.seed, 'avatar', 40) }
   return out
 }
 
@@ -68,13 +77,13 @@ function split(v: unknown, ids: Set<string>): Split {
           unitPaise: i.unitPaise === undefined ? undefined : paise(i.unitPaise, 'item price'),
           totalPaise: paise(i.totalPaise, 'item price'),
           assignees: i.assignees as string[],
-          category: i.category as Expense['category'],
+          category: category(i.category),
         }
       })
       const charges = (s.charges as unknown[]).map((raw) => {
         if (!isObject(raw)) fail('charge')
         const c = raw as Record<string, unknown>
-        return { id: str(c.id, 'charge id', 64), label: str(c.label, 'charge name'), kind: str(c.kind, 'charge kind', 20) as never, paise: paise(c.paise, 'charge') }
+        return { id: str(c.id, 'charge id', 64), label: str(c.label, 'charge name'), kind: oneOf(c.kind, CHARGE_KINDS, 'charge kind'), paise: paise(c.paise, 'charge') }
       })
       return { mode: 'itemized', items, charges }
     }
@@ -103,7 +112,7 @@ export function parseGroup(data: unknown): Group {
       amountPaise: paise(e.amountPaise, 'expense amount'),
       paidBy: record(e.paidBy, 'who paid', ids),
       split: split(e.split, ids),
-      category: e.category as Expense['category'],
+      category: category(e.category),
     }
     // The maths has to add up too, or balances would be wrong
     if (validateExpense(expense).length > 0) fail(`“${expense.title}” doesn’t add up`)

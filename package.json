@@ -1,7 +1,9 @@
 {
   "name": "splitsmart",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Scan a hostel receipt, tap who had what, and settle up with the fewest payments. Runs entirely in the browser.",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
