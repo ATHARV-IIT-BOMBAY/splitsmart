@@ -47,11 +47,6 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: { cacheName: 'cdn', expiration: { maxEntries: 30 }, cacheableResponse: { statuses: [0, 200] } },
           },
-          {
-            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com' || url.origin === 'https://fonts.gstatic.com',
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'fonts', cacheableResponse: { statuses: [0, 200] } },
-          },
         ],
       },
     }),

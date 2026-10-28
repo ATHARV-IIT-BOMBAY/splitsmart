@@ -72,7 +72,7 @@
   --color-highlight: var(--highlight);
   --color-edge: var(--edge);
   --color-pop: var(--pop);
-  --font-sans: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
