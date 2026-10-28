@@ -22,6 +22,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 |12| Remind and QR code| QR code and Remind buttons on a payment|A QR code should be displayed which when scanned with payment app shows correct amount of payment. A reminder can be added to phone's dedicated app| Works |✅ |
 | 13 | Group Sharing | Share a group: Group → Share · Edit → QR code → scan it with the other device → the group appears| website link should open on the other phone with the app group dialog box |works | ✅ |
 |14|Settlement report (PDF)|Balances → report → Save as PDF|A PDF file with report should download|works|✅ |
+|15|Install|Chrome menu → Add to Home screen → opens like an app|SplitSmart is added to the home screen|works|✅ |
 
 ## Bugs found
 
