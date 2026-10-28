@@ -77,3 +77,61 @@ export function paperBox(rgba: Uint8ClampedArray, width: number, height: number)
   // Tiny patches are noise and near-full ones mean the photo is already cropped
   return area < 0.08 || area > 0.85 ? FULL : box
 }
+
+/**
+ * How many degrees to turn the photo so the receipt's text rows run level
+ * (the Straighten value). Tries each angle and keeps the one where dark
+ * pixels bunch into the fewest, fullest rows. Pass a small image (~400px)
+ * and the paper box, so the table around the receipt doesn't count.
+ */
+export function textAngle(rgba: Uint8ClampedArray, width: number, height: number, box: CropBox = FULL, maxAngle = 45): number {
+  const [bx0, by0] = [Math.floor(box.x0 * width), Math.floor(box.y0 * height)]
+  const [bx1, by1] = [Math.ceil(box.x1 * width), Math.ceil(box.y1 * height)]
+  const lum = new Float32Array(width * height)
+  for (let i = 0; i < lum.length; i++) lum[i] = 0.299 * rgba[i * 4] + 0.587 * rgba[i * 4 + 1] + 0.114 * rgba[i * 4 + 2]
+  const inside: number[] = []
+  for (let y = by0; y < by1; y++) for (let x = bx0; x < bx1; x++) inside.push(lum[y * width + x])
+  const paper = [...inside].sort((a, b) => a - b)[Math.floor(inside.length * 0.7)]
+
+  // Print: a dark pixel with mostly paper around it (so bags, shadows and table edges don't count)
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let y = Math.max(by0, 2); y < Math.min(by1, height - 2); y++) {
+    for (let x = Math.max(bx0, 2); x < Math.min(bx1, width - 2); x++) {
+      if (lum[y * width + x] >= paper * 0.6) continue
+      let bright = 0
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (lum[(y + dy) * width + x + dx] >= paper * 0.85) bright++
+      if (bright >= 12) {
+        xs.push(x)
+        ys.push(y)
+      }
+    }
+  }
+  if (xs.length < 50) return 0
+
+  const sharpness = (degrees: number) => {
+    const a = (degrees * Math.PI) / 180
+    const [sin, cos] = [Math.sin(a), Math.cos(a)]
+    const offset = width + height
+    const rows = new Float64Array(2 * offset + 2)
+    for (let i = 0; i < xs.length; i++) {
+      // Split each pixel between its two nearest rows, or the pixel grid itself looks like text at 45°
+      const at = xs[i] * sin + ys[i] * cos + offset
+      const row = Math.floor(at)
+      rows[row] += row + 1 - at
+      rows[row + 1] += at - row
+    }
+    // Level text gives sharp jumps between full rows and the gaps between them
+    let score = 0
+    for (let r = 1; r < rows.length; r++) score += (rows[r] - rows[r - 1]) ** 2
+    return score
+  }
+  let best = 0
+  let bestScore = sharpness(0)
+  for (let d = -maxAngle; d <= maxAngle; d++) {
+    const score = sharpness(d)
+    // Prefer level unless another angle is clearly better
+    if (score > bestScore * 1.05) [best, bestScore] = [d, score]
+  }
+  return best
+}

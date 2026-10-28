@@ -33,7 +33,7 @@ Laptop Chrome set to a phone-size screen (375×812), with photos from `fixtures/
 |---|---|---|---|
 | Clear bill | H2 Canteen (receipt-08) | All 4 items and prices right, ₹253. Asked to check the total. | ✅ |
 | Clear bill with GST | Gulmohar (receipt-06) | 13 items read, CGST read as tax (not an item). Two misread values highlighted yellow to fix. | ⚠️ |
-| Rotated | Domino's (receipt-07) | "Couldn't read this photo" with Retake / Rotate / Type items | ⚠️ |
+| Rotated | Domino's (receipt-07) | Before: "Couldn't read this photo". Now the app straightens the tilt by itself (33°) and reads 4 dishes with the right prices; a few values to check. | ✅ |
 | Faded | Aromas (receipt-10) | "Couldn't read this photo" with Retake / Rotate / Type items. The photo is small (768 px wide), so the text is too tiny for the scanner. | ⚠️ |
 | Not a receipt | App icon | "Couldn't read this photo" with Retake / Type items | ✅ |
 
@@ -41,6 +41,6 @@ Laptop Chrome set to a phone-size screen (375×812), with photos from `fixtures/
 
 | What I did | What went wrong | Phone and browser | Status |
 |---|---|---|---|
-| Rotated bill | Item names not recognised | both | Known limit of on-device OCR. The app turns the photo upright and still finds prices; names can be typed in on the Check screen. |
+| Rotated bill | Item names not recognised | both | Fixed for tilted photos: the app now finds the tilt and straightens it before reading. |
 | Faded bill | Misspelled item names, or "Couldn't read this photo" | both | Known limit. Unsure words are highlighted yellow to fix, and the error screen offers Retake, Rotate, or Type items. |
 | Clear bill | A tax line showed up as an item | both | Fixed: tax lines the scanner misreads (like "5GST" or "@ 10%") are now read as tax, not items. |

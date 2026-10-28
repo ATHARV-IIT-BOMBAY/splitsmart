@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } fr
 import { button } from '../../components/styles'
 import { FULL, type CropBox } from '../../core/imageops'
 import { parseReceipt, type OcrLine } from '../../core/parse'
-import { finish, orient, preparePhoto, suggestCrop, type PreparedImage, type Rotation } from '../../lib/image'
+import { finish, orient, preparePhoto, suggestCrop, suggestStraighten, type PreparedImage, type Rotation } from '../../lib/image'
 import { readReceipt, type OcrProgress } from '../../lib/ocr'
 
 type Corner = 'tl' | 'tr' | 'bl' | 'br'
@@ -26,9 +26,10 @@ export function ReadStep({
   onRetake: () => void
 }) {
   const [rotation, setRotation] = useState<Rotation>(0)
-  const [straighten, setStraighten] = useState(0)
+  // Tilted photos are straightened up front, since the reader can't handle a big tilt
+  const [straighten, setStraighten] = useState(() => suggestStraighten(photo))
   const [oriented, setOriented] = useState<{ canvas: HTMLCanvasElement; url: string } | null>(null)
-  const [crop, setCrop] = useState<CropBox>(() => suggestCrop(orient(photo, 0)))
+  const [crop, setCrop] = useState<CropBox>(() => suggestCrop(orient(photo, 0, straighten)))
   const [autoCropped, setAutoCropped] = useState(crop !== FULL)
   const [progress, setProgress] = useState<OcrProgress | null>(null)
   const [error, setError] = useState('')

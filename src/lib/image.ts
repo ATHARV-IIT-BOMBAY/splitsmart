@@ -1,4 +1,4 @@
-import { FULL, paperBox, type CropBox } from '../core/imageops'
+import { FULL, paperBox, textAngle, type CropBox } from '../core/imageops'
 
 /*
  * Prepares a receipt photo on a canvas, entirely on the device, in two steps:
@@ -59,6 +59,16 @@ export function suggestCrop(canvas: HTMLCanvasElement): CropBox {
   const ctx = small.getContext('2d', { willReadFrequently: true })!
   ctx.drawImage(canvas, 0, 0, small.width, small.height)
   return paperBox(ctx.getImageData(0, 0, small.width, small.height).data, small.width, small.height)
+}
+
+/** How far the receipt is tilted, as a Straighten value, judged on a 400px copy. */
+export function suggestStraighten(photo: ImageBitmap): number {
+  const canvas = orient(photo, 0)
+  const scale = 400 / Math.max(canvas.width, canvas.height)
+  const small = canvasOf(canvas.width * scale, canvas.height * scale)
+  const ctx = small.getContext('2d', { willReadFrequently: true })!
+  ctx.drawImage(canvas, 0, 0, small.width, small.height)
+  return textAngle(ctx.getImageData(0, 0, small.width, small.height).data, small.width, small.height, suggestCrop(canvas))
 }
 
 export async function finish(oriented: HTMLCanvasElement, crop: CropBox = FULL): Promise<PreparedImage> {

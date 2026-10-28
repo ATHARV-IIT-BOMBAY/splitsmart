@@ -99,7 +99,7 @@ type LineKind = 'total' | 'grandTotal' | 'subtotal' | Charge['kind'] | 'noise'
 const KEYWORDS: [RegExp, LineKind][] = [
   [/grand\s*total|bill\s*total|net\s*(amount|amt|total|payable)|bill\s*amount|amount\s*payable|invoice\s*(value|total|amount)|total\s*(value|amount|payable|due)|to\s*pay\b/, 'grandTotal'],
   [/discount|disc\b|\bless\b|offer|coupon|savings?/, 'discount'],
-  [/gstin|gst\s*no|fssai|phone|ph\b|mob|tel\b|invoice|bill\s*no|order|table|kot\b|cashier|waiter|steward|date|time|hsn|sac\b|thank|visit|cin\b|pan\b|upi|card|cash\b|ext\b|change\b|tender|paid\b|deliver(ed|y)\s*(on|by|address)|address|road|floor|shop\s*no|property|plot|place\s*of\s*supply|kms\b|survey|in\s*words|settled|taxable/, 'noise'],
+  [/gstin|gst\s*no|fssai|phone|ph\b|mob|tel\b|invoice|bill\s*no|check\s*no|order|table|kot\b|cashier|waiter|steward|date|time|hsn|sac\b|thank|visit|cin\b|pan\b|upi|card|cash\b|ext\b|change\b|tender|paid\b|deliver(ed|y)\s*(on|by|address)|address|road|floor|shop\s*no|property|plot|place\s*of\s*supply|kms\b|survey|in\s*words|settled|taxable/, 'noise'],
   [/total\s*(qty|quantity|items?)|no\.?\s*of\s*items|items?\s*count/, 'noise'],
   [/sub\s*-?\s*tota?l?\b|item\s*(\(s\))?\s*total|food\s*total|gross/, 'subtotal'],
   [/payable|net\b/, 'grandTotal'],
