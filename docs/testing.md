@@ -17,9 +17,9 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 | 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works |Yes, It worked |✅ |
 | 8 | Offline | Open the app once, turn on airplane mode, reopen | App opens with saved groups | | ✅ |
 | 9 | 5 people, 10 expenses | Make a group of 5, add 10 expenses, different payers | Settle up shows the fewest payments |It works |✅ |
-| 10 | Categories | scan a bill and check that the 🍔 Food / 🛒 Groceries chips make sense| Yes, It works and makes sense | ✅ |
-| 11 | UPI | in Balances, add a UPI ID, tap Pay with UPI, and check that GPay/PhonePe opens with the right amount (don’t actually pay )| Yes, It works | ✅ |
-|12| Remind and QR code| QR code and Remind buttons on a payment| Works well|✅ |
+| 10 | Categories | scan a bill and check that the 🍔 Food / 🛒 Groceries chips make sense|A bill can be allocated a category to make it more organised| Yes, It works and makes sense | ✅ |
+| 11 | UPI | in Balances, add a UPI ID, tap Pay with UPI, and check that GPay/PhonePe opens with the right amount (don’t actually pay )|Payment to the UPI id should be possible| Yes, It works | ✅ |
+|12| Remind and QR code| QR code and Remind buttons on a payment|A QR code should be displayed which when scanned with payment app shows correct amount of payment. A reminder can be added to phone's dedicated app| Works well|✅ |
 
 
 ## Bugs found
