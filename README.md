@@ -6,6 +6,13 @@ Built by **Team Web Architects** for Web Brawl GC 2026.
 
 **Live app:** https://atharv-iit-bombay.github.io/splitsmart/
 
+<p align="center">
+  <img src="docs/screenshots/03-%20Scan.jpg" width="200" alt="Scan a receipt">
+  <img src="docs/screenshots/05-%20Check%20Items.jpg" width="200" alt="Check the items the scanner read">
+  <img src="docs/screenshots/06-%20Assign.jpg" width="200" alt="Tap who had what">
+  <img src="docs/screenshots/09-%20Settle%20Up.jpg" width="200" alt="Settle up with the fewest payments">
+</p>
+
 ## Why SplitSmart?
 
 What problem it solves: Splitting hostel bills by hand sucks. This app gets rid of the messy mental math, forgotten debts, and having to send those awkward WhatsApp reminders to your friends.
@@ -51,6 +58,7 @@ No sign-up. Open the [live app](https://atharv-iit-bombay.github.io/splitsmart/)
 | Share without a server | Group → **Share · Edit** → link, QR code or backup file |
 | Exports | **Balances** → **Report (PDF)** or **Download CSV** |
 | Spending charts | Bottom of the **Balances** tab: totals by category and by person |
+| Repeating bills | **+ Add manually** → **Repeat** (below Split) → every week or month, like Wi-Fi or rent |
 | Offline | Open the app once, turn on airplane mode, reload. Scanning still works. |
 
 ### The 9 required test cases
