@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // Installable app that works offline: the app itself is precached; the OCR
+    // Installable app that works offline: the app and sample bills are precached; the OCR
     // engine, OCR language data and AI runtime are cached the first time they're used
     VitePWA({
       registerType: 'autoUpdate',
@@ -31,12 +31,13 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        globIgnores: ['tesseract/**', 'samples/**'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2}'],
+        // The OCR engine is cached when it's first used (or warmed up in the background, see lib/ocr.ts)
+        globIgnores: ['tesseract/**'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.includes('/tesseract/') || url.pathname.includes('/samples/'),
+            urlPattern: ({ url }) => url.pathname.includes('/tesseract/'),
             handler: 'CacheFirst',
             options: { cacheName: 'ocr-engine', expiration: { maxEntries: 10 } },
           },

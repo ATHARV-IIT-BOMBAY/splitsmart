@@ -44,7 +44,32 @@ const toLines = (page: Page): OcrLine[] =>
     ),
   )
 
+let reading = 0
+
+/**
+ * Loads the reader once in the background and frees it again. The engine files
+ * are then in the offline cache and the English data in IndexedDB, so scanning
+ * works offline even if the first visit never scanned anything.
+ */
+export async function warmUpOcr() {
+  if (worker) return
+  const w = await getWorker()
+  if (reading === 0) {
+    worker = null
+    await w.terminate()
+  }
+}
+
 export async function readReceipt(image: HTMLCanvasElement, onProgress: (p: OcrProgress) => void): Promise<OcrLine[]> {
+  reading++
+  try {
+    return await read(image, onProgress)
+  } finally {
+    reading--
+  }
+}
+
+async function read(image: HTMLCanvasElement, onProgress: (p: OcrProgress) => void): Promise<OcrLine[]> {
   report = onProgress
   const w = await getWorker()
   const lines = toLines((await w.recognize(image, {}, { blocks: true })).data)

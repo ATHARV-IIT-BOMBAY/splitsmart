@@ -19,6 +19,17 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
     }
   }
 
+  async function openSample(file: string) {
+    setError('')
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}samples/${file}`)
+      if (!response.ok) throw new Error(response.statusText)
+      await openPhoto(await response.blob())
+    } catch {
+      setError('The sample bill couldn’t load. Connect to the internet once, or use your own photo.')
+    }
+  }
+
   return (
     <div className="space-y-4">
       {camera ? (
@@ -56,18 +67,15 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
               Upload photo
             </button>
           </div>
-          {/* No receipt at hand? A real campus bill to try the whole flow with */}
-          <button
-            type="button"
-            className={`${button.ghost} mt-4`}
-            onClick={async () => {
-              setError('')
-              const response = await fetch(`${import.meta.env.BASE_URL}samples/gulmohar.jpg`)
-              void openPhoto(await response.blob())
-            }}
-          >
-            No receipt handy? Try a sample bill
-          </button>
+          {/* No receipt at hand? A clean sample, or a crumpled real campus bill that needs fixing */}
+          <div className="mt-4 flex flex-col items-center">
+            <button type="button" className={button.ghost} onClick={() => openSample('night-canteen.jpg')}>
+              No receipt handy? Try a sample bill
+            </button>
+            <button type="button" className={`${button.ghost} text-xs`} onClick={() => openSample('gulmohar.jpg')}>
+              Or a tough real one, with things to fix
+            </button>
+          </div>
         </div>
       )}
       <input

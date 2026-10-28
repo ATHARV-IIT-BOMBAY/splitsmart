@@ -1,0 +1,14 @@
+NIGHT CANTEEN
+Hostel Canteen, Block B
+** SAMPLE BILL **
+TAX INVOICE
+Bill No: 0421 Date: 28/10/26
+Large Pizza 1 400.00 400.00
+Maggi 3 60.00 180.00
+Cold Coffee 1 120.00 120.00
+Garlic Bread 1 100.00 100.00
+Sub Total : 800.00
+CGST @2.5% : 20.00
+SGST @2.5% : 20.00
+Grand Total : 840.00
+Thank you! Visit again

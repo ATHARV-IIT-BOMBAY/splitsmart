@@ -6,6 +6,7 @@ import zomato from './__fixtures__/zomato-invoice.txt?raw'
 import gulmohar from './__fixtures__/gulmohar-bill.txt?raw'
 import gulmohar2 from './__fixtures__/gulmohar-bill-2.txt?raw'
 import h2Canteen from './__fixtures__/h2-canteen-bill.txt?raw'
+import sample from './__fixtures__/night-canteen-sample.txt?raw'
 
 /*
  * Real Tesseract output from receipts in fixtures/receipts (one OCR line per
@@ -101,5 +102,21 @@ describe('real receipts', () => {
     expect(r.items.length).toBeGreaterThanOrEqual(11)
     expect(r.charges.filter((c) => c[0] === 'tax').map((c) => c[2])).toEqual([54.42, 54.42])
     expect([r.subtotal, r.total]).toEqual([2177.09, 2285.54])
+  })
+
+  it('built-in sample bill (public/samples/night-canteen.jpg): the judges’ ₹840 story, nothing to fix', () => {
+    const r = summary(sample)
+    expect(r.items).toEqual([
+      ['Large Pizza', 1, 400],
+      ['Maggi', 3, 180],
+      ['Cold Coffee', 1, 120],
+      ['Garlic Bread', 1, 100],
+    ])
+    expect(r.charges).toEqual([
+      ['tax', 'CGST @2.5%', 20],
+      ['tax', 'SGST @2.5%', 20],
+    ])
+    expect([r.subtotal, r.total]).toEqual([800, 840])
+    expect(r.check.difference).toBe(0)
   })
 })
