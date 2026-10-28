@@ -7,10 +7,10 @@ Built by **Team Web Architects** for Web Brawl GC 2026.
 **Live app:** https://atharv-iit-bombay.github.io/splitsmart/
 
 <p align="center">
-  <img src="docs/screenshots/03-%20Scan.jpg" width="200" alt="Scan a receipt">
-  <img src="docs/screenshots/05-%20Check%20Items.jpg" width="200" alt="Check the items the scanner read">
-  <img src="docs/screenshots/06-%20Assign.jpg" width="200" alt="Tap who had what">
-  <img src="docs/screenshots/09-%20Settle%20Up.jpg" width="200" alt="Settle up with the fewest payments">
+  <img src="docs/screenshots/readme/1-scan.jpg" width="200" alt="Scan a receipt">
+  <img src="docs/screenshots/readme/2-check.jpg" width="200" alt="Check the items the scanner read">
+  <img src="docs/screenshots/readme/3-assign.jpg" width="200" alt="Tap who had what">
+  <img src="docs/screenshots/readme/4-settle.jpg" width="200" alt="Settle up with the fewest payments">
 </p>
 
 ## Why SplitSmart?
