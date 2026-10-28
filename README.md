@@ -35,6 +35,74 @@ What makes it different: Instead of typing everything out, you just scan the rec
 * **Light & dark mode:** Switch themes easily from the home screen.
 * **Avatars:** Pick custom profile pictures for group members.
 
+## Judge's guide: try it in 2 minutes
+
+No sign-up. Open the [live app](https://atharv-iit-bombay.github.io/splitsmart/) on a phone or laptop.
+
+| To see | Do this |
+|---|---|
+| Receipt scanning | Create a group → **Scan receipt** → **Try a sample bill** → **Read receipt** |
+| Fixing the scanner | On **Check the items**, tap any yellow-highlighted price. The banner checks items + tax against the printed total. |
+| Item assignment | On **Who had what**, tap faces on each item, **Everyone**, or **Split into N** for things like Maggi × 3 |
+| AI categories | Category chips appear on items, and on manual expenses after you type a description |
+| Fair tax split | Open a scanned expense → **Each person's share** |
+| Fewest payments | **Balances** tab: the chip shows how many IOUs collapse into how many payments |
+| UPI and reminders | On a payment card: **Add …’s UPI ID** → **Pay with UPI** / **QR code**, or **Remind** |
+| Share without a server | Group → **Share · Edit** → link, QR code or backup file |
+| Exports | **Balances** → **Report (PDF)** or **Download CSV** |
+| Offline | Open the app once, turn on airplane mode, reload. Scanning still works. |
+
+### The 9 required test cases
+
+Results from our device testing are in [docs/testing.md](docs/testing.md).
+
+| # | Case | What SplitSmart does |
+|---|---|---|
+| 1 | Clear bill with GST | Reads items, tax lines and total, then checks they add up |
+| 2 | Faded thermal receipt | Boosts contrast, re-reads if reading stops early, highlights unsure words |
+| 3 | Rotated photo | Auto-retries at 180°, 90° and 270°; manual Rotate and Straighten too |
+| 4 | Not a receipt | "Couldn’t read this photo" with Retake, Rotate, or Type items |
+| 5 | No printed total | Works the total out from the items and asks you to check it |
+| 6 | ₹100 split three ways | 33.34 + 33.33 + 33.33, never 99.99 |
+| 7 | Camera blocked | Clear message, and Upload photo still works |
+| 8 | Offline | App, saved groups and scanning all work with no network |
+| 9 | 5 people, 10 expenses | Exact minimum number of payments |
+
+## How it works
+
+Everything runs in the browser. There is no server and no account, and receipt photos never leave the device.
+
+### Receipt reading
+
+1. **Find the paper.** The photo is turned upright using its EXIF data, and the brightest colourless region is suggested as the crop. You can drag the corners or straighten it.
+2. **Clean it up.** The crop is converted to greyscale with a contrast stretch. We also tried auto-deskew, adaptive thresholding and upscaling, measured them against our receipt set, and dropped them because they made results worse.
+3. **Read it.** [Tesseract.js](https://github.com/naptha/tesseract.js) runs in a Web Worker. Its engine files are bundled with the app, so scanning works offline.
+4. **Understand it.** A parser written for Indian bills turns the text into items, charges and a total. It handles ₹ misread as "3", lost decimal points, split decimals like "253, 00", CGST/SGST lines, round-off and wide invoice tables. When the items plus charges don't match the printed total, the screen says so.
+
+The parser is tested against real OCR output from Swiggy, Zomato, Zepto and campus canteen bills (`src/core/__fixtures__/`).
+
+### Categories
+
+[Transformers.js](https://huggingface.co/docs/transformers.js) runs **MobileBERT-MNLI** (`Xenova/mobilebert-uncased-mnli`, 8-bit, about 28 MB) as a zero-shot classifier in a Web Worker. It downloads once, then works offline. Each item is scored with the whole receipt as context, and any category you correct is remembered for next time.
+
+### Money and rounding
+
+All amounts are stored as whole **paise**, never floating-point rupees. Every split goes through one function, `allocate()` in [src/core/allocate.ts](src/core/allocate.ts), which uses the **largest remainder method**:
+
+1. Everyone gets their exact share rounded down to the paisa.
+2. The leftover paise go one at a time to the largest remainders.
+3. Ties go to the payer first, then to members in the order they joined.
+
+So ₹100 ÷ 3 is always ₹33.34 + ₹33.33 + ₹33.33, and the parts always add up to the bill exactly. On scanned bills, tax and service charges are shared in proportion to what each person ordered.
+
+### Fewest payments
+
+[src/core/settle.ts](src/core/settle.ts) finds the **exact** minimum, not a greedy guess. If people with non-zero balances can be split into *k* separate groups that each sum to zero, everyone settles in *n − k* payments. A bitmask dynamic programme over all subsets (O(2ⁿ · n)) finds the largest *k*. For example, balances +600, +400, −300, −300, −400 take 4 payments with greedy matching but only 3 here. Above 20 people it falls back to greedy.
+
+### Stack
+
+React 19 + TypeScript, Vite, Tailwind CSS v4, Zustand (saved to localStorage), vite-plugin-pwa for offline use and installing, Vitest for tests and oxlint for linting. The pure logic lives in `src/core/` with unit tests next to it; the screens live in `src/features/`.
+
 ## Setup
 
 Requires Node.js 22+.
