@@ -13,14 +13,15 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 | 3 | Rotated photo | Take the photo sideways or upside down | Still reads it, or offers Rotate / Retake |NOT no items error found this time but not reading most of the item names |⚠️|
 | 4 | Not a receipt | Scan a selfie or a wall | "No items found" with Retake / Type items |No items found on this photo, offered retake |✅ |
 | 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | Yes, asked to check| ✅ |
-| 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | | ✅ |
-| 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works |Yes, It worked |✅ |
+| 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | works| ✅ |
+| 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works |works |✅ |
 | 8 | Offline | Open the app once, turn on airplane mode, reopen | App opens with saved groups | | ✅ |
 | 9 | 5 people, 10 expenses | Make a group of 5, add 10 expenses, different payers | Settle up shows the fewest payments |It works |✅ |
 | 10 | Categories | scan a bill and check that the 🍔 Food / 🛒 Groceries chips make sense|A bill can be allocated a category to make it more organised| Yes, It works and makes sense | ✅ |
-| 11 | UPI | in Balances, add a UPI ID, tap Pay with UPI, and check that GPay/PhonePe opens with the right amount (don’t actually pay )|Payment to the UPI id should be possible| Yes, It works | ✅ |
-|12| Remind and QR code| QR code and Remind buttons on a payment|A QR code should be displayed which when scanned with payment app shows correct amount of payment. A reminder can be added to phone's dedicated app| Works well|✅ |
-
+| 11 | UPI | in Balances, add a UPI ID, tap Pay with UPI, and check that GPay/PhonePe opens with the right amount (don’t actually pay )|Payment to the UPI id should be possible| works | ✅ |
+|12| Remind and QR code| QR code and Remind buttons on a payment|A QR code should be displayed which when scanned with payment app shows correct amount of payment. A reminder can be added to phone's dedicated app| Works |✅ |
+| 13 | Group Sharing | Share a group: Group → Share · Edit → QR code → scan it with the other device → the group appears
+ | website link should open on the other phone with the app group dialog box |works | ✅ |
 
 ## Bugs found
 
