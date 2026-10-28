@@ -6,6 +6,8 @@ Built by **Team Web Architects** for Web Brawl GC 2026.
 
 **Live app:** https://atharv-iit-bombay.github.io/splitsmart/
 
+**Lighthouse** (live site): laptop **100 · 100 · 100 · 100**, phone **96 · 100 · 100 · 100** (performance · accessibility · best practices · SEO). 125 unit tests, MIT licensed.
+
 <p align="center">
   <img src="docs/screenshots/readme/1-scan.jpg" width="200" alt="Scan a receipt">
   <img src="docs/screenshots/readme/2-check.jpg" width="200" alt="Check the items the scanner read">
