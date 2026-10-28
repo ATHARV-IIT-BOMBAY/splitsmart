@@ -1,37 +1,54 @@
 # SplitSmart: demo video script
 
-**Length:** 90 seconds · **Recorded on:** a phone (screen recording), plus one 5-second laptop shot
+**Presenters:** Atharv (**A**) and Nimitt (**N**), Team Web Architects, Hostel 18
+**Length:** about 1 min 45 s · **Format:** screen recording of the app at phone size, with both of you on voice-over, plus a 5-second intro and outro on camera
 **Story:** the judges' own scenario. Riya pays for a night canteen order for her wing, and SplitSmart splits it and settles it.
+
+## Who does what
+
+| | Atharv | Nimitt |
+|---|---|---|
+| **Drives the app** (taps on screen) | Scenes 2, 4, 6, 7 | Scenes 3, 5, 8, 9 |
+| **Voice-over** | Lines marked **A** | Lines marked **N** |
+| **On camera** | Intro and outro, together | Intro and outro, together |
+| **After recording** | Edits the video, adds captions | Uploads it, sends the link to Abhinav for the README |
+
+Tip: record each scene separately (screen first, then the voice for that scene), so a mistake only costs one scene. Whoever drives a scene can also record its voice.
 
 ## Before recording
 
-- [ ] Phone in **light mode**, **Do Not Disturb** on, battery and time look normal, screen recording at 1080p
-- [ ] Fresh app data: open the site → create nothing yet (the video starts from an empty home screen)
-- [ ] A **real printed canteen or restaurant bill** with GST on the table, in good light (or use **"Try a sample bill"**)
-- [ ] For the settle-up shot, prepare a **second group** in advance ("Wing B Goa Trip") with 5 people and 6–8 expenses with different payers, so the screen shows something like **"7 IOUs → 4 payments"**
-- [ ] Riya's UPI ID added in that group (any valid-looking ID) so **Pay with UPI** appears
-- [ ] A second phone or laptop nearby for the **QR scan** shot
-- [ ] App opened once online before the offline shot (so it's cached)
+- [ ] **How to record at phone size on a laptop:** Chrome → open the live app → `Cmd+Option+I` → `Cmd+Shift+M` (device mode) → pick **iPhone 14 Pro** → record with `Cmd+Shift+5` → "Record Selected Portion" around the phone frame. Or record on a real phone with its screen recorder.
+- [ ] **Light mode**, Do Not Disturb on, no notifications, clean browser tabs
+- [ ] **Fresh app data** (DevTools → Application → Clear site data), so the video starts on the empty home screen
+- [ ] Open the app once, wait 10 seconds, and try one scan, so the text reader and the category AI are already downloaded (no waiting on camera)
+- [ ] **Scenes 6–9 use the demo group.** "Try a demo group" only shows on an empty home screen, so record scenes 6–9 in a **second Chrome profile** (or an incognito window) where you tapped **Try a demo group** first. In the edit, cut straight from scene 5 to the demo group's Balances tab.
+- [ ] A second phone nearby for the **QR scan** shot (scene 8)
+- [ ] Quiet room, both mics tested; speak a little slower than normal
 
 ## Script
 
-| Time | On screen | Atharv says (voice-over) |
-|---|---|---|
-| 0:00–0:06 | Empty home screen. Quick zoom on the SplitSmart title. | "2 AM, night canteen, one bill, four hungry people. Who owes what? Meet SplitSmart." |
-| 0:06–0:14 | Tap **Create a group** → type "Night Canteen Gang", "Riya", "Arjun, Meera, Kabir" → **Create group**. | "Make a group in one step: your name, your friends, done." |
-| 0:14–0:26 | **Scan receipt** → **Take photo** of the bill → crop box snaps around the receipt → **Read receipt** → scan line moves down, progress shows. | "Snap the bill. SplitSmart finds the receipt, crops it, and reads it right here on the phone. The photo is never uploaded." |
-| 0:26–0:36 | **Check the items:** a price is highlighted yellow → tap and fix it → banner turns green "adds up, matching the receipt". | "Anything the scanner isn't sure about is highlighted. Fix it in a tap, and it checks the items plus GST against the printed total." |
-| 0:36–0:50 | **Who had what:** tap **Everyone** on the pizza → **Split into 3** on Maggi × 3 → tap one face on each Maggi → cold coffee to Meera. Category chips show 🍔 Food. Totals at the bottom update live. | "Tap who had what. Pizza for everyone, one Maggi each, cold coffee for Meera. An on-device AI sorts every item into a category, and everyone's total updates live." |
-| 0:50–0:56 | **Save** → tap the expense → **Each person's share**: items plus "Tax and charges, by what they had". | "GST is split by what each person actually ate, exact to the paisa." |
-| 0:56–1:08 | Switch to the prepared **Wing B Goa Trip** group → **Balances** → chip **"7 IOUs → 4 payments"** → tap **Pay with UPI** → GPay opens with the amount (cut before paying) → back → **Mark paid** → **PAID** stamp lands. | "Settle up with the fewest payments possible. Not a guess: the exact minimum. Pay with UPI in one tap, and mark it paid." |
-| 1:08–1:16 | **Share · Edit** → **QR code** → second phone scans it → "Someone shared a group with you" → **Add to my groups**. | "Share the whole group by QR. No account, no server: it travels inside the code." |
-| 1:16–1:24 | Turn on **airplane mode** ✈️ → reopen the app → groups are there → scan a bill → it still reads. Quick flash of the app installed on the home screen. | "And it works offline, scanning included. Install it like an app." |
-| 1:24–1:30 | End card (laptop shot of the app + text overlay): **SplitSmart · Scan it. Tap it. Settled.** · On-device OCR + AI · Fewest payments · UPI · Works offline · **Team Web Architects, [Hostel name]** · atharv-iit-bombay.github.io/splitsmart | "SplitSmart. Scan it, tap it, settled." |
+| # | Time | On screen | Voice-over |
+|---|---|---|---|
+| 1 | 0:00–0:06 | **On camera**, both of you. Then cut to the empty home screen. | **A:** "2 AM, night canteen, one bill, four hungry people. Who owes what?" **N:** "We're Atharv and Nimitt from Hostel 18, and this is SplitSmart." |
+| 2 | 0:06–0:14 | Tap **Create a group** → "Night Canteen Gang", "Riya", "Arjun, Meera, Kabir" → **Create group**. | **A:** "Make a group in one step: your name, your friends, done." |
+| 3 | 0:14–0:26 | **Scan receipt** → **Try a sample bill** → the crop box snaps around the receipt and straightens it → **Read receipt** → the scan line runs → green banner "**adds up to ₹840.00, matching the receipt**". | **N:** "Snap the bill. SplitSmart finds the receipt, straightens it and reads it right here on the phone. The photo is never uploaded. Items plus GST: ₹840, matching the bill." |
+| 4 | 0:26–0:40 | **Next: who had what** → **Everyone** on the pizza → **Split into 3** on Maggi → one face on each Maggi → Cold Coffee to Meera → Garlic Bread to Riya and Meera. 🍔 Food chips appear. The bottom bar shows ₹220.50 · ₹168 · ₹283.50 · ₹168. | **A:** "Tap who had what. Pizza for everyone, one Maggi each, cold coffee for Meera. On-device AI sorts the items, and everyone's total updates live." |
+| 5 | 0:40–0:50 | **Save** → open the expense → the share table: items + **share of tax (with %)** = total, adding up to ₹840.00. | **N:** "GST is shared by what each person actually ate, and every share is exact to the paisa. It always adds up." |
+| 6 | 0:50–1:00 | Open the **Wing B Goa Trip (demo)** group (prepared beforehand, see below) → **Balances** → "**10 IOUs → 4 payments**" → tap **✓ Proven minimum · Why?** → the sheet opens for 2 seconds. | **A:** "Five friends, a Goa trip, eleven bills. Ten IOUs become just four payments, and that's the proven minimum, not a guess." |
+| 7 | 1:00–1:08 | On a payment card: **QR code** (or **Pay with UPI** on a real phone) → close → **Mark paid** → the **PAID** stamp lands. | **A:** "Pay with UPI in one tap or by QR, and mark it paid." |
+| 8 | 1:08–1:18 | **Share** → **QR code** → the second phone scans it → "Someone shared a group with you" → **Add to my groups**. | **N:** "Share the whole group by QR code. No account, no server: the group travels inside the code." |
+| 9 | 1:18–1:30 | Quick cuts: **Upload photos** picking 3 receipts → "Receipt 1 of 3"; the **spending charts**; turn on **airplane mode** → reload → it still works. | **N:** "Scan a whole trip's bills in one go, see where the money went, and it all works offline, scanning included." |
+| 10 | 1:30–1:40 | **On camera**, both of you, then the end card: **SplitSmart · Scan it. Tap it. Settled.** · On-device OCR + AI · Proven fewest payments · UPI · Works offline · **Team Web Architects, Hostel 18** · atharv-iit-bombay.github.io/splitsmart | **A:** "SplitSmart." **N:** "Scan it, tap it, settled." |
+
+## If you have 15 seconds spare
+
+Between scenes 3 and 4, show the yellow fixes: **Scan receipt** → **Or a tough real one** → **Read receipt** → tap **values to check ↓** → it jumps to a yellow price → type the right one.
+**N:** "And when a bill is crumpled, anything the scanner isn't sure about is highlighted yellow. Fix it in a tap."
 
 ## Editing notes
 
-- Cut waiting time: speed up the OCR reading to about 2 seconds, and skip typing pauses.
-- Add **on-screen captions** for each line, since judges may watch muted.
-- Zoom in (crop) on small things: the yellow highlight, the "IOUs → payments" chip, the PAID stamp.
-- Background music: royalty-free only (YouTube Audio Library), quiet under the voice.
-- Export 1080p MP4 under 100 MB. Upload as **unlisted on YouTube** (or Google Drive with "anyone with the link"), then add the link to the README.
+- Cut the waiting: speed up OCR reading to about 2 seconds, and trim typing pauses.
+- Add **captions** for every line, since judges may watch muted.
+- Zoom in on the small moments: the green ₹840 banner, the share table, "10 IOUs → 4 payments", the PAID stamp.
+- Background music: royalty-free only (YouTube Audio Library), quiet under the voices.
+- Export 1080p MP4 under 100 MB. Upload **unlisted on YouTube** (or Google Drive with "anyone with the link"), then add the link to the top of the README.

@@ -2,7 +2,7 @@
 
 Scan a hostel receipt, fix what the scanner got wrong, assign items to the people who had them, and settle up with the fewest possible payments. Everything runs in the browser, and receipts never leave your device.
 
-Built by **Team Web Architects** for Web Brawl GC 2026.
+Built by **Team Web Architects, Hostel 18** for Web Brawl GC 2026.
 
 **Live app:** https://atharv-iit-bombay.github.io/splitsmart/
 
@@ -175,10 +175,12 @@ npm run dev
 
 ## Team
 
+**Team Web Architects · Hostel 18, IIT Bombay**
+
 | Member | Role | Owns |
 |---|---|---|
-| **Atharv Pratap Singh Chauhan** | Team lead · Full-stack | App logic (splits, balances, settle-up), data storage, OCR and AI integration, core screens |
-| **Nimitt Pamecha** | Frontend developer | UI components, styling, accessibility |
+| **Atharv Pratap Singh Chauhan** | Team lead · Full-stack | App logic (splits, balances, settle-up), data storage, OCR and AI integration, core screens, demo video |
+| **Nimitt Pamecha** | Frontend developer | UI components, styling, accessibility, CSV export, demo video |
 | **Abhiraj Kumar** | QA and test data lead | Real receipt dataset, device testing against all 9 test cases |
 | **Abhinav Kaushal** | Documentation and content lead | README, user guide, in-app text, demo script |
 
