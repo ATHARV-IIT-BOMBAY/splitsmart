@@ -14,7 +14,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 | 4 | Not a receipt | Scan a selfie or a wall | "No items found" with Retake / Type items |No items found on this photo, offered retake |✅ |
 | 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | Yes, asked to check| ✅ |
 | 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | | ✅ |
-| 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works | | |
+| 7 | Camera blocked | Block camera for the site, then tap Take photo | Clear message + Upload photo works |Yes, It worked |✅ |
 | 8 | Offline | Open the app once, turn on airplane mode, reopen | App opens with saved groups | | ✅ |
 | 9 | 5 people, 10 expenses | Make a group of 5, add 10 expenses, different payers | Settle up shows the fewest payments | | |
 
