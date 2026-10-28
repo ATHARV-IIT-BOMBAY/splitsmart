@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkTotal, parseReceipt, type OcrLine } from './parse'
+import { checkTotal, parseReceipt, shopName, type OcrLine } from './parse'
 import swiggy from './__fixtures__/swiggy-screenshot.txt?raw'
 import zepto from './__fixtures__/zepto-invoice.txt?raw'
 import zomato from './__fixtures__/zomato-invoice.txt?raw'
@@ -118,5 +118,12 @@ describe('real receipts', () => {
     ])
     expect([r.subtotal, r.total]).toEqual([800, 840])
     expect(r.check.difference).toBe(0)
+  })
+
+  it('reads the shop name only when it is printed clearly', () => {
+    expect(shopName(ocr(sample))).toBe('Night Canteen')
+    expect(shopName(ocr(gulmohar))).toBeUndefined() // "LMOHAR": garbled, so no guess
+    expect(shopName(ocr(gulmohar2))).toBeUndefined() // "GULMOHAR?" was read with low confidence
+    expect(shopName(ocr(zomato))).toBeUndefined() // starts with "Tax Invoice"
   })
 })

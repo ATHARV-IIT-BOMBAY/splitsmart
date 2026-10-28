@@ -15,6 +15,11 @@ describe('scan draft', () => {
     expect(editItem(row('Maggi', '1', '60.00'), { qty: '3', unit: '60' }).total).toBe('180.00')
   })
 
+  it('fixing a misread total updates the rate when it divides evenly', () => {
+    expect(editItem(row('Butter Roti', '14', '34.00'), { total: '364' }).unit).toBe('26.00')
+    expect(editItem(row('Lassi', '3', '100'), { total: '100' }).unit).toBe('')
+  })
+
   it('splits "Maggi × 3" into three single units that add up exactly', () => {
     const units = splitIntoUnits(row('Maggi', '3', '100'))
     expect(units.map((u) => [u.name, u.total])).toEqual([

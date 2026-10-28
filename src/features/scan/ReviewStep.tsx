@@ -109,9 +109,10 @@ export function ReviewStep({
           {draft.items.map((item, i) => (
             <li key={item.id} className="px-3 py-2.5" onFocus={() => setActive(item.id)} onMouseEnter={() => setActive(item.id)}>
               {item.bbox && <LineCrop image={image} bbox={item.bbox} />}
-              <div className="flex items-center gap-2">
+              {/* Phones: the name gets its own row so it's readable; qty × price = total below */}
+              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
                 <input
-                  className={`${field(item.doubtfulName)} min-w-0 flex-1`}
+                  className={`${field(item.doubtfulName)} min-w-0 basis-full sm:basis-auto sm:flex-1`}
                   data-unsure={item.doubtfulName || undefined}
                   value={item.name}
                   onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { name: e.target.value }) : r)) })}
@@ -119,14 +120,28 @@ export function ReviewStep({
                   aria-label={`Item ${i + 1} name`}
                 />
                 <input
-                  className={`${field()} money w-12 text-center`}
+                  className={`${field()} money w-11 text-center text-sm sm:w-12 sm:text-base`}
                   value={item.qty}
                   inputMode="numeric"
                   onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { qty: e.target.value }) : r)) })}
                   aria-label={`Item ${i + 1} quantity`}
                 />
+                <span aria-hidden="true" className="text-ink-soft">
+                  ×
+                </span>
                 <input
-                  className={`${field(item.doubtfulAmount)} money w-24 text-right`}
+                  className={`${field()} money w-[5.5rem] text-right text-sm sm:w-24 sm:text-base`}
+                  value={item.unit}
+                  inputMode="decimal"
+                  onChange={(e) => onChange({ ...draft, items: draft.items.map((r) => (r.id === item.id ? editItem(r, { unit: e.target.value }) : r)) })}
+                  placeholder="rate"
+                  aria-label={`Item ${i + 1} price each`}
+                />
+                <span aria-hidden="true" className="hidden text-ink-soft sm:inline">
+                  =
+                </span>
+                <input
+                  className={`${field(item.doubtfulAmount)} money min-w-0 flex-1 text-right text-sm sm:w-24 sm:flex-none sm:text-base`}
                   data-unsure={item.doubtfulAmount || undefined}
                   value={item.total}
                   inputMode="decimal"

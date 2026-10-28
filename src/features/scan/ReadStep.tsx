@@ -237,7 +237,7 @@ export function ReadStep({
             />
             <span className="w-10 shrink-0 text-right font-mono">{straighten}°</span>
           </label>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="mx-auto grid max-w-sm grid-cols-2 gap-2">
             <button type="button" className={button.secondary} onClick={() => rotate(-90)} aria-label="Rotate left">
               ↺ Rotate
             </button>

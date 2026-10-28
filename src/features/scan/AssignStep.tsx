@@ -28,7 +28,7 @@ export function AssignStep({
 }) {
   const memberIds = group.members.map((m) => m.id)
   const [id] = useState(() => editing?.id ?? crypto.randomUUID())
-  const [title, setTitle] = useState(editing?.title ?? '')
+  const [title, setTitle] = useState(editing?.title ?? draft.shop ?? '')
   const [payer, setPayer] = useState<MemberId>(
     (editing && Object.keys(editing.paidBy)[0]) ?? group.meId ?? memberIds[0],
   )
@@ -96,28 +96,17 @@ export function AssignStep({
 
   return (
     <div className="space-y-5 pb-44">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="What was it?">
-          <input className={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Night canteen order" />
-        </Field>
-        <Field label="Paid by">
-          <select className={input} value={payer} onChange={(e) => setPayer(e.target.value)}>
-            {group.members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-                {m.id === group.meId ? ' (you)' : ''}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Date">
-          <input className={input} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </Field>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Who had what?</h2>
-        {unassigned > 0 && <span className="text-sm text-owes">{unassigned} not assigned yet</span>}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-2xl font-extrabold">Who had what?</h2>
+        {unassigned > 0 && (
+          <button
+            type="button"
+            className="rounded-full border-2 border-edge bg-pop px-3 py-1 text-xs font-semibold text-[#1c1b19]"
+            onClick={() => onChange({ ...draft, items: draft.items.map((i) => (i.assignees.length ? i : { ...i, assignees: memberIds })) })}
+          >
+            {unassigned === draft.items.length ? 'Everyone shared everything' : `Everyone shared the other ${unassigned}`}
+          </button>
+        )}
       </div>
       <p className="text-xs text-ink-soft" role="status" aria-live="polite">
         {sorting === 'working'
@@ -192,6 +181,25 @@ export function AssignStep({
           )
         })}
       </ul>
+
+      <section aria-label="Bill details" className={`${card} grid gap-3 p-4 sm:grid-cols-3`}>
+        <Field label="What was it?">
+          <input className={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={draft.shop ?? 'Night canteen order'} />
+        </Field>
+        <Field label="Paid by">
+          <select className={input} value={payer} onChange={(e) => setPayer(e.target.value)}>
+            {group.members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+                {m.id === group.meId ? ' (you)' : ''}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Date">
+          <input className={input} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </Field>
+      </section>
 
       {showProblems && problems.length > 0 && (
         <ul role="alert" className="space-y-1 rounded-xl border border-owes/40 bg-owes/10 p-3 text-sm text-owes">

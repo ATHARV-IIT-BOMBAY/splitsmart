@@ -38,6 +38,8 @@ export interface ScanDraft {
   items: ItemRow[]
   charges: ChargeRow[]
   printedTotal: string
+  /** The shop's name when the receipt prints it clearly; used as the default title. */
+  shop?: string
 }
 
 const text = (paise: Paise | undefined) => (paise === undefined ? '' : (paise / 100).toFixed(2))
@@ -98,6 +100,11 @@ export function editItem(row: ItemRow, patch: Partial<Pick<ItemRow, 'name' | 'qt
     const qty = Number(next.qty)
     const unit = parseRupees(next.unit)
     if (Number.isInteger(qty) && qty > 0 && unit !== null) next.total = text(qty * unit)
+  } else if ('total' in patch) {
+    // A corrected total keeps the rate in step when it divides evenly (14 × 26 = 364)
+    const qty = Number(next.qty)
+    const total = parseRupees(next.total)
+    if (Number.isInteger(qty) && qty > 0 && total !== null) next.unit = total % qty === 0 ? text(total / qty) : ''
   }
   return next
 }
@@ -169,14 +176,16 @@ export function draftToExpense(
     charges.push({ id: id(), label: 'Adjustment to printed total', kind: 'adjustment', paise: -difference })
   }
   const amountPaise = meta.usePrinted && printed !== null ? printed : calculated
+  const category = mainCategory(items)
   const expense: Expense = {
     id: meta.id,
-    title: meta.title.trim() || 'Receipt',
+    // No title typed: the shop's name, else "Food bill" and the like
+    title: meta.title.trim() || draft.shop || (category && category !== 'Other' ? `${category} bill` : 'Receipt'),
     date: meta.date,
     amountPaise,
     paidBy: { [meta.payer]: amountPaise },
     split: { mode: 'itemized', items, charges },
-    category: mainCategory(items),
+    category,
   }
   return { expense, problems: validateExpense(expense) }
 }

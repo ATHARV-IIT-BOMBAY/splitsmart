@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { button } from '../../components/styles'
-import { parseReceipt, type OcrLine } from '../../core/parse'
+import { parseReceipt, shopName, type OcrLine } from '../../core/parse'
 import type { PreparedImage } from '../../lib/image'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
@@ -39,7 +39,7 @@ export function ScanPage({ groupId }: { groupId: string }) {
 
   function onRead(photo: ImageBitmap, image: PreparedImage, lines: OcrLine[]) {
     const parsed = parseReceipt(lines)
-    setDraft(draftFromParsed(parsed))
+    setDraft({ ...draftFromParsed(parsed), shop: shopName(lines) })
     setStep(parsed.items.length > 0 ? { name: 'review', image } : { name: 'nothing-found', image, photo })
   }
 
