@@ -383,17 +383,23 @@ export function parseReceipt(lines: readonly OcrLine[]): ParsedReceipt {
 /**
  * The shop's name, if the top of the receipt prints it clearly: a short line of
  * confidently read words with no numbers, like "NIGHT CANTEEN" → "Night Canteen".
- * Single words are skipped: a cut-off "LMOHAR" (Gulmohar) reads confidently too.
+ * Single words are skipped (a cut-off "LMOHAR" reads confidently too), and only the
+ * first real line counts, so an address line is never mistaken for the name.
  * Returns undefined rather than guessing from a garbled line.
  */
 export function shopName(lines: readonly OcrLine[]): string | undefined {
   for (const line of lines.slice(0, 3)) {
+    // "TAX INVOICE" or "Welcome" above the name is fine to skip; anything else is the name or nothing
+    if (/invoice|receipt|welcome|original|copy/i.test(line.text)) continue
     const words = line.words.map((w) => ({ ...w, text: stripJunk(w.text) })).filter((w) => w.text)
     const text = words.map((w) => w.text).join(' ')
-    if (words.length < 2 || words.length > 4 || /\d/.test(text) || !/[a-z]{3}/i.test(text)) continue
-    if (classify(text) !== null || /invoice|bill|receipt|memo|welcome|order|original|copy/i.test(text)) continue
-    if (words.some((w) => w.confidence < 85 || !/^[a-z&'.-]+$/i.test(w.text))) continue
-    return text.toLowerCase().replace(/(^|[\s-])([a-z])/g, (_, gap: string, c: string) => gap + c.toUpperCase())
+    const clear =
+      words.length >= 2 &&
+      words.length <= 4 &&
+      !/[\d,]/.test(line.text) && // numbers or commas mean an address or a bill line
+      classify(text) === null &&
+      words.every((w) => w.confidence >= 85 && /^[a-z&'.-]+$/i.test(w.text))
+    return clear ? text.toLowerCase().replace(/(^|[\s-])([a-z])/g, (_, gap: string, c: string) => gap + c.toUpperCase()) : undefined
   }
   return undefined
 }

@@ -125,5 +125,6 @@ describe('real receipts', () => {
     expect(shopName(ocr(gulmohar))).toBeUndefined() // "LMOHAR": garbled, so no guess
     expect(shopName(ocr(gulmohar2))).toBeUndefined() // "GULMOHAR?" was read with low confidence
     expect(shopName(ocr(zomato))).toBeUndefined() // starts with "Tax Invoice"
+    expect(shopName(ocr(h2Canteen))).toBeUndefined() // first line unsure; the address below isn't a name
   })
 })

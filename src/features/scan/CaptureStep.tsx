@@ -2,22 +2,24 @@ import { useEffect, useRef, useState } from 'react'
 import { button } from '../../components/styles'
 import { loadPhoto } from '../../lib/image'
 
-/** Lets the user take a photo with the camera or pick one from the device. */
-export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void }) {
+/**
+ * Lets the user take a photo with the camera or pick photos from the device.
+ * Picking several starts a batch: each receipt goes through check and assign in turn.
+ */
+export function CaptureStep({ onPhotos }: { onPhotos: (photos: ImageBitmap[]) => void }) {
   const [camera, setCamera] = useState(false)
   const [error, setError] = useState('')
   const fileInput = useRef<HTMLInputElement>(null)
 
-  async function openPhoto(file: Blob) {
-    if (!/^image\/(jpeg|png|webp|heic|heif)$/.test(file.type) && file.type !== '') {
-      return setError('That file isn’t a photo. Choose a JPG or PNG of the receipt.')
-    }
-    try {
-      onPhoto(await loadPhoto(file))
-    } catch {
-      setError('This photo couldn’t be opened. Try another one, or a JPG or PNG.')
-    }
+  async function openPhotos(files: Blob[]) {
+    const photos = files.filter((f) => /^image\/(jpeg|png|webp|heic|heif)$/.test(f.type) || f.type === '')
+    if (photos.length === 0) return setError('That file isn’t a photo. Choose a JPG or PNG of the receipt.')
+    const opened = (await Promise.allSettled(photos.map(loadPhoto))).flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+    if (opened.length === 0) return setError('This photo couldn’t be opened. Try another one, or a JPG or PNG.')
+    onPhotos(opened)
   }
+
+  const openPhoto = (file: Blob) => openPhotos([file])
 
   async function openSample(file: string) {
     setError('')
@@ -64,9 +66,10 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
               Take photo
             </button>
             <button type="button" className={button.secondary} onClick={() => fileInput.current?.click()}>
-              Upload photo
+              Upload photos
             </button>
           </div>
+          <p className="mt-2 text-xs text-ink-soft">Pick several to scan a whole trip’s bills in one go.</p>
           {/* No receipt at hand? A clean sample, or a crumpled real campus bill that needs fixing */}
           <div className="mt-4 flex flex-col items-center">
             <button type="button" className={button.ghost} onClick={() => openSample('night-canteen.jpg')}>
@@ -82,11 +85,12 @@ export function CaptureStep({ onPhoto }: { onPhoto: (photo: ImageBitmap) => void
         ref={fileInput}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/heic"
+        multiple
         className="hidden"
         onChange={(e) => {
-          const file = e.target.files?.[0]
+          const files = [...(e.target.files ?? [])]
           e.target.value = ''
-          if (file) void openPhoto(file)
+          if (files.length) void openPhotos(files)
         }}
       />
       {error && (
