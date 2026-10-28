@@ -21,26 +21,53 @@ Who it's for: Perfect for hostel rooms, wings, group trips, and late-night cante
 
 What makes it different: Instead of typing everything out, you just scan the receipt and tap who ate what. It automatically figures out how to settle up with the fewest payments possible, and keeps everything right on your phone.
 
-## Features
+### Highlights
 
-### Core
-* **Scan and fix:** Read receipts automatically and tap to correct any unsure prices.
-* **Four split modes:** Divide items equally, by exact amounts, percentages, or shares.
-* **Fair tax split:** Divide tax and tips based only on what each person actually ate.
-* **Fewest payments:** Settle group debts with the absolute minimum number of transactions.
+- **Provably fewest payments.** Not a greedy guess: an exact search over every way to group people, with a "Why?" right in the app.
+- **GST split by what you ate, exact to the paisa.** ₹100 ÷ 3 is always 33.34 + 33.33 + 33.33.
+- **Reads the bill on your phone.** OCR and AI run on the device, so photos never leave it, and it works offline.
+- **Fix it in a tap.** Unsure words are highlighted yellow, and each line shows its own strip of the photo.
+- **No server, no sign-up.** Share a whole group by link or QR code.
 
-### Advanced
-* **Auto-categories:** Sort expenses (like Food or Travel) using on-device AI.
-* **UPI & QR payments:** Settle balances directly with one-tap UPI or QR codes.
-* **WhatsApp reminders:** Send pending payment nudges to friends with one tap.
-* **Recurring bills:** Set up repeating group expenses like monthly rent or Wi-Fi.
-* **PDF reports:** Export clean summaries of your group's expenses and settlements.
+## Features by tier
 
-### Extras
-* **Share groups:** Invite friends instantly via a link or QR code.
-* **Works offline:** Scan receipts and calculate splits completely without internet.
-* **Light & dark mode:** Switch themes easily from the home screen.
-* **Avatars:** Pick custom profile pictures for group members.
+### Tier 1: Core ✅
+- [x] Create, rename and delete groups; add and remove members with an avatar and colour; switch groups from one dashboard with totals
+- [x] Upload a JPG/PNG or take a photo; preview with auto-crop, **auto-straighten**, rotate and retake
+- [x] OCR in a Web Worker with a progress bar and scan-line animation; the screen never freezes
+- [x] Items with name, quantity, rate and line total; subtotal, CGST/SGST/IGST, service charge, discount, round-off and grand total; addresses, GSTIN, phone numbers and footers ignored
+- [x] Every field editable, lines can be added or deleted, **low-confidence words highlighted yellow**, and the photo beside the table (a strip of it above each line on phones)
+- [x] Warns when items + charges don't match the printed total, and shows the difference
+- [x] Manual expenses: description, amount, payer, people and date
+- [x] Each member's net balance, updated after every expense
+
+### Tier 2: Advanced ✅
+- [x] Tap avatars to assign items; **Everyone**, **Split into 3** for Maggi × 3, and unassigned items flagged before saving
+- [x] Four split modes: equal, exact amounts, percentages and shares, with validation
+- [x] Tax, service charge and discounts split in proportion to each person's items
+- [x] Shares add up to the bill exactly, with a documented rounding rule
+- [x] **Exact** fewest payments across the whole group, and **Mark paid** (with undo)
+- [x] On-device AI categories (Food, Groceries, Travel, Utilities, Entertainment, Other) you can override; the model loads only when needed
+- [x] Everything survives a refresh (localStorage)
+
+### Tier 3: Brownie points ✅ 9 of 9
+- [x] **UPI**: `upi://pay` links and QR codes for each payment, pre-filled with payee, amount and note
+- [x] **Spending analytics**: by category, by person and over time
+- [x] **Sharing without a backend**: link, QR code or JSON backup file, all validated on import
+- [x] **PWA and offline**: installable, and scanning works offline
+- [x] **Recurring expenses**: weekly or monthly, added automatically when due
+- [x] **Export**: settlement report as PDF, and CSV
+- [x] **Batch scan**: pick several receipts and go through them one after another
+- [x] **Accessibility**: keyboard use everywhere (even the crop corners), screen-reader labels, AA contrast in light and dark (Lighthouse accessibility 100)
+- [x] **Live deployment** on GitHub Pages, auto-deployed by CI
+
+### Our own extras
+- Auto-crop and auto-straighten for tilted photos
+- "Proven minimum" explainer, with how many payments the usual shortcut would need
+- WhatsApp reminders and a one-message settle-up summary
+- A demo group and a sample bill, so the whole app can be tried without a receipt
+- "You" view: what you owe across all groups, and whose turn it is to treat
+- Light, dark and match-phone themes, and illustrated avatars
 
 ## Judge's guide: try it in 2 minutes
 
@@ -48,16 +75,18 @@ No sign-up. Open the [live app](https://atharv-iit-bombay.github.io/splitsmart/)
 
 | To see | Do this |
 |---|---|
+| See everything at once | On the home screen, tap **Try a demo group**: 5 people, 11 expenses in every split mode, a scanned receipt and a payment |
 | Receipt scanning | Create a group → **Scan receipt** → **Try a sample bill** → **Read receipt**. The sample is a ₹840 canteen bill with GST, and the banner confirms items + tax match the total. |
 | Fixing the scanner | Scan → **Or a tough real one, with things to fix** (a crumpled campus bill). Unsure words are highlighted yellow; tap **N values to check ↓** to jump to each one. The banner checks items + tax against the printed total. |
 | Item assignment | On **Who had what**, tap faces on each item, **Everyone**, or **Split into N** for things like Maggi × 3 |
 | AI categories | Category chips appear on items, and on manual expenses after you type a description |
-| Fair tax split | Open a scanned expense → **Each person's share** |
-| Fewest payments | **Balances** tab: the chip shows how many IOUs collapse into how many payments |
+| Fair tax split | Open a scanned expense: a table of each person's items + their share of tax (with the %) = total |
+| Fewest payments | **Balances** tab: "10 IOUs → 4 payments" and **✓ Proven minimum · Why?** |
 | UPI and reminders | On a payment card: **Add …’s UPI ID** → **Pay with UPI** on a phone, **Pay by QR** on a laptop, or **Remind** |
-| Share without a server | Group → **Share · Edit** → link, QR code or backup file |
+| Share without a server | Group → **Share** → link, QR code or backup file |
 | Exports | **Balances** → **Report (PDF)** or **Download CSV** |
-| Spending charts | Bottom of the **Balances** tab: totals by category and by person |
+| Spending charts | **Balances** tab (right side on a laptop, below on a phone): by category, by person and over time |
+| Batch scan | **Scan receipt** → **Upload photos** → pick several |
 | Repeating bills | **+ Add manually** → **Repeat** (below Split) → every week or month, like Wi-Fi or rent |
 | Offline | Open the app once and wait about 10 seconds (the text reader caches itself), turn on airplane mode, reload. Scanning still works. |
 
@@ -80,6 +109,20 @@ Results from our device testing are in [docs/testing.md](docs/testing.md).
 ## How it works
 
 Everything runs in the browser. There is no server and no account, and receipt photos never leave the device.
+
+```mermaid
+flowchart LR
+  A[Photo] --> B[Auto-crop and<br/>straighten]
+  B --> C[Tesseract.js OCR<br/>in a Web Worker]
+  C --> D[Parser:<br/>items, GST, total]
+  D --> E[Check:<br/>fix yellow values]
+  E --> F[Assign:<br/>who had what]
+  F --> G["allocate()<br/>paisa-exact shares"]
+  G --> H[Balances]
+  H --> I["settleUp()<br/>bitmask DP"]
+  I --> J[UPI link / QR,<br/>Mark paid]
+  D -. item names .-> K[MobileBERT-MNLI<br/>categories]
+```
 
 ### Receipt reading
 
@@ -110,7 +153,7 @@ So ₹100 ÷ 3 is always ₹33.34 + ₹33.33 + ₹33.33, and the parts always ad
 
 ### Stack
 
-React 19 + TypeScript, Vite, Tailwind CSS v4, Zustand (saved to localStorage), vite-plugin-pwa for offline use and installing, Vitest for tests and oxlint for linting. The pure logic lives in `src/core/` with unit tests next to it; the screens live in `src/features/`.
+React 19 + TypeScript, Vite, Tailwind CSS v4, Zustand (saved to localStorage), vite-plugin-pwa for offline use and installing, Vitest for tests and oxlint for linting. The pure logic (money, splitting, settling, parsing, sharing) lives in `src/core/` with **125 unit tests** next to it, including the OCR output of 7 real receipts; the screens live in `src/features/`. CI runs lint, tests and a type-checked build on every push, then deploys.
 
 ## Setup
 

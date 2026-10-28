@@ -90,7 +90,7 @@ export function PaymentCard({
           {upiError && <p className="text-xs text-owes">{upiError}</p>}
         </form>
       ) : (
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap [&>*:last-child:nth-child(odd)]:col-span-2">
           {link ? (
             <>
               {/* upi:// only opens on phones; on a laptop the QR is how you pay */}
