@@ -35,6 +35,8 @@ export function ReadStep({
   const [error, setError] = useState('')
   const [turning, setTurning] = useState(false)
   const frame = useRef<HTMLDivElement>(null)
+  // Once the user drags a corner (or picks Whole photo), we stop moving their crop
+  const userCropped = useRef(false)
 
   // Re-draw the photo whenever it's turned or straightened
   useEffect(() => {
@@ -52,6 +54,17 @@ export function ReadStep({
     }
   }, [photo, rotation, straighten])
 
+  // Straightening moves the receipt inside the frame, so re-suggest the crop once the slider rests
+  useEffect(() => {
+    if (userCropped.current) return
+    const timer = setTimeout(() => {
+      const box = suggestCrop(orient(photo, rotation, straighten))
+      setCrop(box)
+      setAutoCropped(box !== FULL)
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [photo, rotation, straighten])
+
   /** Moves one corner to where `to` says, given the corner's current spot. */
   function moveCorner(corner: Corner, to: (x: number, y: number) => [number, number]) {
     setCrop((c) => {
@@ -65,6 +78,7 @@ export function ReadStep({
         y1: corner[0] === 'b' ? Math.max(fy, c.y0 + MIN_CROP) : c.y1,
       }
     })
+    userCropped.current = true
     setAutoCropped(false)
   }
 
@@ -137,11 +151,8 @@ export function ReadStep({
 
   // Turning the photo moves the receipt, so suggest a fresh crop
   function rotate(by: 90 | -90) {
-    const next = ((rotation + by + 360) % 360) as Rotation
-    const box = suggestCrop(orient(photo, next))
-    setRotation(next)
-    setCrop(box)
-    setAutoCropped(box !== FULL)
+    userCropped.current = false
+    setRotation(((rotation + by + 360) % 360) as Rotation) // the effect above suggests a fresh crop
   }
   const reading = progress !== null
   const percent = Math.round((progress?.progress ?? 0) * 100)
@@ -237,6 +248,7 @@ export function ReadStep({
               type="button"
               className={button.secondary}
               onClick={() => {
+                userCropped.current = true
                 setCrop(FULL)
                 setAutoCropped(false)
               }}

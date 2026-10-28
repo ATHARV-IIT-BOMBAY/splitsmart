@@ -8,6 +8,9 @@ import { isUpiId, reminderText, upiLink } from '../../core/upi'
 import { qrDataUrl, shareText } from '../../lib/share'
 import { useGroups } from '../../store/groups'
 
+/** Phones open upi:// links in a UPI app; laptops can't, so they get the QR instead. */
+const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches
+
 /** One suggested payment: pay by UPI (link or QR), remind on WhatsApp, or mark it paid. */
 export function PaymentCard({
   group,
@@ -30,6 +33,9 @@ export function PaymentCard({
   if (!from || !to) return null
 
   const nameOf = (id: string, lower = false) => (id === group.meId ? (lower ? 'you' : 'You') : (group.members.find((m) => m.id === id)?.name ?? 'Someone'))
+  const youPay = t.from === group.meId
+  // In a group where we don't know who you are, anyone might be the one paying
+  const canPay = youPay || !group.meId
   const link = to.upiId ? upiLink({ upiId: to.upiId, name: to.name, paise: t.paise, note: `SplitSmart ${group.name}` }) : undefined
 
   function saveUpi(event: FormEvent) {
@@ -87,32 +93,38 @@ export function PaymentCard({
         <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {link ? (
             <>
-              <a href={link} className={button.primary}>
-                Pay with UPI
-              </a>
+              {/* upi:// only opens on phones; on a laptop the QR is how you pay */}
+              {canPay && touch && (
+                <a href={link} className={button.primary}>
+                  Pay with UPI
+                </a>
+              )}
               <button
                 type="button"
-                className={button.secondary}
+                className={canPay && !touch ? button.primary : button.secondary}
                 onClick={async () => setQr(await qrDataUrl(link))}
                 aria-label={`Show UPI QR code to pay ${to.name}`}
               >
-                QR code
+                {canPay && !touch ? 'Pay by QR' : t.to === group.meId ? 'QR to collect' : 'QR code'}
               </button>
             </>
           ) : (
             <button type="button" className={`${button.secondary} col-span-2`} onClick={() => setAddingUpi(true)}>
-              Add {to.name}’s UPI ID
+              {t.to === group.meId ? 'Add your UPI ID' : `Add ${to.name}’s UPI ID`}
             </button>
           )}
-          <button
-            type="button"
-            className={button.secondary}
-            onClick={() =>
-              shareText(reminderText({ from: from.name, to: to.name, paise: t.paise, groupName: group.name, link }))
-            }
-          >
-            Remind
-          </button>
+          {/* No point reminding yourself */}
+          {!youPay && (
+            <button
+              type="button"
+              className={t.to === group.meId && link ? button.primary : button.secondary}
+              onClick={() =>
+                shareText(reminderText({ from: from.name, to: to.name, paise: t.paise, groupName: group.name, link }))
+              }
+            >
+              Remind
+            </button>
+          )}
           <button type="button" className={button.secondary} onClick={onMarkPaid} disabled={stamping}>
             Mark paid
           </button>

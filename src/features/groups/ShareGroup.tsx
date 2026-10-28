@@ -27,8 +27,11 @@ export function ShareGroup({ group }: { group: Group }) {
   function download() {
     const url = URL.createObjectURL(new Blob([toBackup(group)], { type: 'application/json' }))
     const a = Object.assign(document.createElement('a'), { href: url, download: `${group.name.replace(/[^\w-]+/g, '-')}.splitsmart.json` })
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
+    a.remove()
+    // Safari cancels the download if the URL is revoked straight away
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
 
   return (

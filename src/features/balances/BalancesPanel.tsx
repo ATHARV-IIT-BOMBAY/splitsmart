@@ -79,7 +79,7 @@ export function BalancesPanel({ group }: { group: Group }) {
                     'settled'
                   ) : (
                     <>
-                      {b > 0 ? 'gets back ' : 'owes '}
+                      {m.id === group.meId ? (b > 0 ? 'get back ' : 'owe ') : b > 0 ? 'gets back ' : 'owes '}
                       <Money paise={Math.abs(b)} className="font-semibold" />
                     </>
                   )}

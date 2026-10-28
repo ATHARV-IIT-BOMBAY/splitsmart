@@ -69,12 +69,13 @@ export function AssignStep({
   const { expense, problems } = draftToExpense(draft, meta)
   const unassigned = draft.items.filter((i) => i.assignees.length === 0).length
 
-  // Live preview: split only what's assigned so far.
+  // Live preview: split only what's assigned so far. Once everything is assigned,
+  // include the gap to the printed total too, so the shares add up to the Save amount.
   let preview: Record<string, number> = {}
   const assigned = { ...draft, items: draft.items.filter((i) => i.assignees.length > 0) }
   if (assigned.items.some((i) => (parseRupees(i.total) ?? 0) > 0)) {
     try {
-      preview = computeShares(draftToExpense(assigned, { ...meta, usePrinted: false }).expense, memberIds)
+      preview = computeShares(draftToExpense(assigned, { ...meta, usePrinted: usePrinted && unassigned === 0 }).expense, memberIds)
     } catch {
       preview = {}
     }

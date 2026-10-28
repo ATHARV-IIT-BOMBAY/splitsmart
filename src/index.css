@@ -141,13 +141,23 @@ dialog::backdrop {
 
 /* Printing / Save as PDF: plain black on white, no app chrome */
 @media print {
-  :root {
+  /* Matches the dark-theme selectors' strength, so a dark phone still prints black on white */
+  :root,
+  :root[data-theme],
+  :root:not([data-theme]) {
     --page: #fff;
     --paper: #fff;
     --ink: #000;
     --ink-soft: #444;
     --line: #ccc;
     --edge: #000;
+    --drop: #000;
+    --accent: #ff6b3d;
+    --pop: #ffd84d;
+    --owed: #1f7a45;
+    --owes: #b4361a;
+    --highlight: #ffe58a;
+    color-scheme: light;
   }
   body {
     background: #fff;
