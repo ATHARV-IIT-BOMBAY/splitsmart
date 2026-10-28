@@ -13,19 +13,20 @@
 | Part 2: settle, share, offline | **Nimitt** | Screen + Nimitt's webcam bubble | ~45 s |
 | Outro + end card | Both, side by side | Full camera, then end card | ~5 s |
 
-Each of you records your own part in Cap on your own laptop. Only the intro and outro need you together.
+Both parts are screen-recorded on Atharv's Pixel 6a; each of you then adds your own voice and webcam bubble in Cap. Only the intro and outro need you together.
 
 ## Before recording (both)
 
-- [ ] **Same phone view on both laptops:** Chrome → live app → `Cmd+Option+I` → `Cmd+Shift+M` (device mode) → **iPhone 14 Pro**. In Cap, record just that area (or the window).
-- [ ] Cap's webcam bubble: **small, bottom corner**, never over buttons. Light from a window in front of you.
-- [ ] Light mode, Do Not Disturb on, no notifications, only the app tab open.
+- [ ] **Record on Atharv's Pixel 6a** (both parts, so they match): swipe down twice → **Screen record** → "Record audio" **off** (voices are added later) and "Show touches on screen" **on**.
+- [ ] Open the live site in Chrome → ⋮ → **Add to Home screen / Install**, and record from the installed app (no address bar).
+- [ ] Phone: **light theme** in the app (tap ☀), brightness up, **Do Not Disturb** on, battery above 50%, clear status bar (no notifications).
+- [ ] Then put the phone clips into Cap: voice-over on top, and a small webcam bubble in a bottom corner, never over buttons.
 - [ ] Open the app once, wait 10 seconds and do one scan, so the text reader and the category AI are already downloaded (no waiting on camera). Then **clear site data** (DevTools → Application → Clear site data).
 - [ ] Quiet room. Speak a little slower than normal; it's fine to pause and redo a sentence.
 
 **Atharv's setup:** start on the **empty home screen**.
 
-**Nimitt's setup:** on the empty home screen, tap **Try a demo group** before recording, then start on that group. Keep a second phone nearby for the QR scan, and his own phone's screen recorder ready for the airplane-mode shot.
+**Nimitt's setup:** on the empty home screen, tap **Try a demo group** before recording, then start on that group. Use Nimitt's phone as the second phone that scans the group QR.
 
 ## Intro: both, on camera (~5 s)
 
