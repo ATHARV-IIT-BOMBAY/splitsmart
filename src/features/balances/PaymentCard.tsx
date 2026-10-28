@@ -55,7 +55,7 @@ export function PaymentCard({
         </span>
         <span className="min-w-0 flex-1">
           <span className="font-medium">{nameOf(t.from)}</span>
-          <span className="text-ink-soft"> pays </span>
+          <span className="text-ink-soft"> {t.from === group.meId ? 'pay' : 'pays'} </span>
           <span className="font-medium">{nameOf(t.to, true)}</span>
         </span>
         <Money paise={t.paise} className="text-lg font-semibold" />

@@ -24,7 +24,8 @@ function downloadCsv(group: Group) {
   document.body.appendChild(a)
   a.click()
   a.remove()
-  URL.revokeObjectURL(url)
+  // Safari cancels the download if the URL is revoked straight away
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 export function BalancesPanel({ group }: { group: Group }) {
@@ -129,9 +130,14 @@ export function BalancesPanel({ group }: { group: Group }) {
         )}
       </section>
 
-      <a href={href('g', group.id, 'report')} className={`${button.secondary} w-full`}>
-        Settlement report (PDF)
-      </a>
+      <div className="grid grid-cols-2 gap-2">
+        <a href={href('g', group.id, 'report')} className={button.secondary}>
+          Report (PDF)
+        </a>
+        <button type="button" className={button.secondary} onClick={() => downloadCsv(group)}>
+          Download CSV
+        </button>
+      </div>
 
       {group.settlements.length > 0 && (
         <section aria-labelledby="paid-heading">
@@ -155,15 +161,6 @@ export function BalancesPanel({ group }: { group: Group }) {
           </ul>
         </section>
       )}
-
-      <section aria-labelledby="export-heading">
-        <h2 id="export-heading" className="mb-2 font-bold">
-          Export
-        </h2>
-        <button type="button" className={button.secondary} onClick={() => downloadCsv(group)}>
-          Download CSV
-        </button>
-      </section>
     </div>
   )
 }
