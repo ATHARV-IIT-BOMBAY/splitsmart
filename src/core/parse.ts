@@ -107,7 +107,7 @@ const KEYWORDS: [RegExp, LineKind][] = [
   [/service\s*(charge|chg|tax)?|\bs\.?\s*c\.?\b/, 'service'],
   [/packing|packaging|container|delivery|parcel/, 'delivery'],
   [/platform\s*fee|convenience|handling/, 'other'],
-  [/c\.?\s*gst|s\.?\s*gst|i\.?\s*gst|u\.?\s*gst|\bgst\b|\b[cs]\.?st\b|\bvat\b|cess|\btax(es)?\b/, 'tax'],
+  [/c\.?\s*gst|s\.?\s*gst|i\.?\s*gst|u\.?\s*gst|\bgst\b|\b[cs]\.?st\b|\bvat\b|cess|\btax(es)?\b|@\s*[\d.lo]+\s*%/, 'tax'],
   [/\btotal\b|\bamount\b|\bamt\b/, 'total'],
 ]
 
@@ -117,8 +117,8 @@ function keywordText(text: string): string {
     .toLowerCase()
     .replace(/0/g, 'o')
     .replace(/(?<=[a-z])1|1(?=[a-z])/g, 'l')
-    .replace(/c6st|cg5t/g, 'cgst')
-    .replace(/s6st|sg5t/g, 'sgst')
+    .replace(/[c6][g6][s5$]t/g, 'cgst')
+    .replace(/[s5$][g6][s5$]t/g, 'sgst')
 }
 
 function classify(label: string): LineKind | null {

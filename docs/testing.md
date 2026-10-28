@@ -27,8 +27,8 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 
 ## Bugs found
 
-| What I did | What went wrong | Phone and browser | Screenshot |
-| rotated bill | Item names not recognised | both | |
-| faded bill | mis spelled item names | | |
-| clear bill showed tax in item category | | |
-
+| What I did | What went wrong | Phone and browser | Status |
+|---|---|---|---|
+| Rotated bill | Item names not recognised | both | Known limit of on-device OCR. The app turns the photo upright and still finds prices; names can be typed in on the Check screen. |
+| Faded bill | Misspelled item names, or "Couldn't read this photo" | both | Known limit. Unsure words are highlighted yellow to fix, and the error screen offers Retake, Rotate, or Type items. |
+| Clear bill | A tax line showed up as an item | both | Fixed: tax lines the scanner misreads (like "5GST" or "@ 10%") are now read as tax, not items. |

@@ -117,6 +117,12 @@ describe('parseReceipt', () => {
     expect(r.totalPaise).toBe(2050)
   })
 
+  it('keeps garbled tax lines like 5GST and "@ 2.5%" out of the items', () => {
+    const r = parseReceipt(ocr('Dosa 100.00\n5GST 2.50\nXYZ @ 10% 2.50\nTotal 105.00'))
+    expect(r.items.map((i) => i.name)).toEqual(['Dosa'])
+    expect(r.charges.map((c) => c.kind)).toEqual(['tax', 'tax'])
+  })
+
   it('finds no items in a non-receipt and leaves the total empty', () => {
     const r = parseReceipt(ocr('Hello from Goa\nbest trip ever\n2026'))
     expect(r).toEqual({ items: [], charges: [], subtotalPaise: undefined, totalPaise: undefined })
