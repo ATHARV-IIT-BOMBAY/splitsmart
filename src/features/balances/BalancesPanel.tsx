@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Avatar, Money } from '../../components/ui'
+import { Avatar, Money, Sheet } from '../../components/ui'
 import { button, card } from '../../components/styles'
 import { computeBalances, directDebtCount } from '../../core/balances'
 import { groupToCsv } from '../../core/csv'
-import { settleUp, type Transfer } from '../../core/settle'
+import { greedySettle, settleUp, type Transfer } from '../../core/settle'
 import type { Group } from '../../core/types'
 import { today } from '../expenses/draft'
 import { formatINR } from '../../core/money'
@@ -35,7 +35,10 @@ export function BalancesPanel({ group }: { group: Group }) {
   const balances = computeBalances(group)
   const transfers = settleUp(balances)
   const iouCount = directDebtCount(group)
+  const greedyCount = greedySettle(balances).length
+  const biggest = Math.max(...Object.values(balances).map(Math.abs), 1)
   const [stamping, setStamping] = useState<string | null>(null)
+  const [explaining, setExplaining] = useState(false)
   const member = (id: string) => group.members.find((m) => m.id === id)
   const nameOf = (id: string) => (id === group.meId ? 'You' : member(id)?.name ?? 'Someone')
   const keyOf = (t: Transfer) => `${t.from}-${t.to}`
@@ -73,7 +76,19 @@ export function BalancesPanel({ group }: { group: Group }) {
             return (
               <li key={m.id} className="flex items-center gap-3 px-4 py-3">
                 <Avatar member={m} />
-                <span className="flex-1 font-medium">{nameOf(m.id)}</span>
+                <span className="flex-1 font-medium">
+                  {nameOf(m.id)}
+                  {/* Who's up and who's down, at a glance */}
+                  <span aria-hidden="true" className="mt-1 flex h-1.5 w-full max-w-40">
+                    <span className="flex flex-1 justify-end">
+                      {b < 0 && <span className="h-full rounded-l-full bg-owes" style={{ width: `${(-b / biggest) * 100}%` }} />}
+                    </span>
+                    <span className="w-px bg-line" />
+                    <span className="flex-1">
+                      {b > 0 && <span className="block h-full rounded-r-full bg-owed" style={{ width: `${(b / biggest) * 100}%` }} />}
+                    </span>
+                  </span>
+                </span>
                 <span className={`text-right text-sm ${b > 0 ? 'text-owed' : b < 0 ? 'text-owes' : 'text-ink-soft'}`}>
                   {b === 0 ? (
                     'settled'
@@ -95,7 +110,8 @@ export function BalancesPanel({ group }: { group: Group }) {
           Settle up
         </h2>
         {transfers.length === 0 ? (
-          <div className={`${card} px-4 py-6 text-center`}>
+          <div className={`${card} relative overflow-hidden px-4 py-6 text-center`}>
+            {group.settlements.length > 0 && <Confetti />}
             <p className="text-3xl" aria-hidden="true">
               {group.settlements.length > 0 ? '🎉' : '🤝'}
             </p>
@@ -111,7 +127,18 @@ export function BalancesPanel({ group }: { group: Group }) {
                   {transfers.length === 1 ? 'payment' : 'payments'}
                 </span>
               )}
-              <span className="text-ink-soft">The fewest payments that settle everything.</span>
+              <button
+                type="button"
+                className="rounded-full border-2 border-edge bg-pop px-3 py-1 font-semibold text-[#1c1b19]"
+                onClick={() => setExplaining(true)}
+              >
+                ✓ Proven minimum · Why?
+              </button>
+              {greedyCount > transfers.length && (
+                <span className="text-ink-soft">
+                  The usual shortcut needs {greedyCount}; this needs {transfers.length}.
+                </span>
+              )}
               <button type="button" className={`${button.ghost} ml-auto`} onClick={shareSummary}>
                 Share on WhatsApp
               </button>
@@ -164,6 +191,39 @@ export function BalancesPanel({ group }: { group: Group }) {
       )}
 
       <SpendingPanel group={group} />
+
+      <Sheet open={explaining} onClose={() => setExplaining(false)} title="Why this is the fewest">
+        <div className="space-y-3 text-sm leading-relaxed">
+          <p>
+            Only each person’s <strong>net balance</strong> matters. If people can be split into groups whose balances cancel out, each
+            group of <em>k</em> people settles in <em>k − 1</em> payments.
+          </p>
+          <p>
+            So the fewest payments is <strong>people − groups</strong>, and the trick is finding the most such groups. SplitSmart tries
+            every way of grouping people (a bitmask search over all subsets), so the answer is the true minimum, not a guess.
+          </p>
+          <p className="rounded-xl bg-page p-3">
+            Example: +600, +400, −300, −300, −400. The usual shortcut (biggest debt pays biggest credit) needs 4 payments. Grouping
+            {' {+400, −400}'} and {'{+600, −300, −300}'} needs only 3.
+          </p>
+        </div>
+      </Sheet>
     </div>
+  )
+}
+
+/** A short burst of paper confetti when the last debt is paid. */
+function Confetti() {
+  const colors = ['var(--accent)', 'var(--pop)', 'var(--owed)', '#c9d7f8', '#f7c8dd']
+  return (
+    <span aria-hidden="true" className="pointer-events-none absolute inset-0">
+      {Array.from({ length: 24 }, (_, i) => (
+        <span
+          key={i}
+          className="confetti"
+          style={{ left: `${(i * 41) % 100}%`, backgroundColor: colors[i % colors.length], animationDelay: `${(i % 6) * 80}ms` }}
+        />
+      ))}
+    </span>
   )
 }

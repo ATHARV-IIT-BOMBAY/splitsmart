@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { spending } from './spending'
+import { spending, spendingOverTime } from './spending'
 import type { Group } from './types'
 
 const group: Group = {
@@ -29,5 +29,24 @@ describe('spending', () => {
     const s = spending(group)
     expect(s.byPerson).toEqual([['a', 18334], ['b', 18333], ['c', 8333]])
     expect(s.byPerson.reduce((sum, [, p]) => sum + p, 0)).toBe(s.total)
+  })
+
+  it('spending over time: by day for a short trip, with empty days shown', () => {
+    const { unit, periods } = spendingOverTime(group)
+    expect(unit).toBe('day')
+    expect(periods.map((p) => [p.start, p.paise])).toEqual([
+      ['2026-10-26', 40000],
+      ['2026-10-27', 5000],
+    ])
+  })
+
+  it('spending over time: by week (from Monday) for longer stretches', () => {
+    const long = { ...group, expenses: [{ ...group.expenses[0], date: '2026-09-02' }, { ...group.expenses[1], date: '2026-10-21' }] }
+    const { unit, periods } = spendingOverTime(long)
+    expect(unit).toBe('week')
+    expect(periods[0]).toMatchObject({ start: '2026-08-31', paise: 10000 })
+    expect(periods.at(-1)).toMatchObject({ start: '2026-10-19', paise: 30000 })
+    expect(periods).toHaveLength(8)
+    expect(periods.reduce((sum, p) => sum + p.paise, 0)).toBe(40000)
   })
 })

@@ -73,6 +73,14 @@ function zeroSumGroups(amounts: readonly Paise[]): number[][] {
   return groups
 }
 
+/**
+ * The usual shortcut: biggest debtor pays biggest creditor until everyone's
+ * square. Shown next to our answer so the saving is visible.
+ */
+export function greedySettle(balances: Record<MemberId, Paise>): Transfer[] {
+  return greedy(Object.entries(balances).filter(([, paise]) => paise !== 0))
+}
+
 /** Repeatedly lets the biggest debtor pay the biggest creditor. */
 function greedy(people: ReadonlyArray<readonly [MemberId, Paise]>): Transfer[] {
   const left = people.map(([id, paise]) => ({ id, paise }))

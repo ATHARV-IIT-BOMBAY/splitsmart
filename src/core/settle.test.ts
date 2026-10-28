@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { computeBalances, directDebtCount } from './balances'
-import { MAX_EXACT_PEOPLE, settleUp, type Transfer } from './settle'
+import { greedySettle, MAX_EXACT_PEOPLE, settleUp, type Transfer } from './settle'
 import type { Expense, Group } from './types'
 
 /** Applies transfers to balances; a correct settlement leaves everyone at 0. */
@@ -43,6 +43,10 @@ describe('settleUp', () => {
     expect(transfers).toHaveLength(3)
     expect(transfers).toContainEqual({ from: 'dev', to: 'arjun', paise: 40000 })
     expect(Object.values(afterPaying(balances, transfers)).every((b) => b === 0)).toBe(true)
+    // …while the usual greedy shortcut needs 4 (what the app shows for comparison)
+    const greedy = greedySettle(balances)
+    expect(greedy).toHaveLength(4)
+    expect(Object.values(afterPaying(balances, greedy)).every((b) => b === 0)).toBe(true)
   })
 
   it('A owes B ₹200 and B owes C ₹200 → A pays C directly', () => {

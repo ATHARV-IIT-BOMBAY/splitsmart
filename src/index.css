@@ -139,6 +139,22 @@ dialog::backdrop {
   }
 }
 
+/* Paper confetti for "All square!" */
+.confetti {
+  position: absolute;
+  top: -10px;
+  width: 7px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confetti-fall 1.4s ease-in both;
+}
+@keyframes confetti-fall {
+  to {
+    transform: translateY(220px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
 /* Printing / Save as PDF: plain black on white, no app chrome */
 @media print {
   /* Matches the dark-theme selectors' strength, so a dark phone still prints black on white */
