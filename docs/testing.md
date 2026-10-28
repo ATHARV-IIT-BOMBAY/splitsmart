@@ -10,7 +10,7 @@ The judges' 9 robustness tests, run on real phones. Live app: https://atharv-iit
 |---|---|---|---|---|---|
 | 1 | Clear printed bill with GST | Scan a clear restaurant bill | Items, tax and total read with few fixes |Improved, but still some items are left to read, tax on read this time| ⚠️ |
 | 2 | Faded thermal receipt | Scan a faded canteen slip | Unsure words highlighted yellow; you can fix them |Couldn’t read this photo| ⚠️|
-| 3 | Rotated photo | Take the photo sideways or upside down | Still reads it, or offers Rotate / Retake |No items found on this photo, offered retake |⚠️|
+| 3 | Rotated photo | Take the photo sideways or upside down | Still reads it, or offers Rotate / Retake |NOT no items error found this time but not reading most of the item names |⚠️|
 | 4 | Not a receipt | Scan a selfie or a wall | "No items found" with Retake / Type items |No items found on this photo, offered retake |✅ |
 | 5 | No printed total | Scan a bill with no total at the bottom | Total worked out from items; asks you to check | Yes, asked to check| ✅ |
 | 6 | ₹100 split three ways | Add ₹100 expense split equally between 3 | Shares are 33.34, 33.33, 33.33 | | ✅ |
