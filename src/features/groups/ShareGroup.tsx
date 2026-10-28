@@ -35,10 +35,7 @@ export function ShareGroup({ group }: { group: Group }) {
   }
 
   return (
-    <section className="space-y-2 border-t border-line pt-4" aria-labelledby="share-heading">
-      <h3 id="share-heading" className="font-bold">
-        Share this group
-      </h3>
+    <section className="space-y-2" aria-label="Share this group">
       <p className="text-sm text-ink-soft">Your friends get the whole group on their phone. Nothing goes through a server.</p>
       <div className="grid grid-cols-3 gap-2">
         <button

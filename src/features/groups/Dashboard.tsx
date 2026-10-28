@@ -30,7 +30,7 @@ export function Dashboard() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+    <main className="mx-auto max-w-3xl px-4 pb-16 pt-6 lg:max-w-6xl">
       <header className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">SplitSmart</h1>
@@ -95,7 +95,7 @@ export function Dashboard() {
           </button>
         </EmptyState>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((group) => (
             <li key={group.id}>
               <GroupCard group={group} />

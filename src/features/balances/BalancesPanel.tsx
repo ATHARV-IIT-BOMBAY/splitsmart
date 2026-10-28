@@ -65,132 +65,137 @@ export function BalancesPanel({ group }: { group: Group }) {
   }
 
   return (
-    <div className="space-y-6">
-      <section aria-labelledby="balances-heading">
-        <h2 id="balances-heading" className="mb-2 font-bold">
-          Balances
-        </h2>
-        <ul className={`${card} divide-y divide-line`}>
-          {group.members.map((m) => {
-            const b = balances[m.id] ?? 0
-            return (
-              <li key={m.id} className="flex items-center gap-3 px-4 py-3">
-                <Avatar member={m} />
-                <span className="flex-1 font-medium">
-                  {nameOf(m.id)}
-                  {/* Who's up and who's down, at a glance */}
-                  <span aria-hidden="true" className="mt-1 flex h-1.5 w-full max-w-40">
-                    <span className="flex flex-1 justify-end">
-                      {b < 0 && <span className="h-full rounded-l-full bg-owes" style={{ width: `${(-b / biggest) * 100}%` }} />}
-                    </span>
-                    <span className="w-px bg-line" />
-                    <span className="flex-1">
-                      {b > 0 && <span className="block h-full rounded-r-full bg-owed" style={{ width: `${(b / biggest) * 100}%` }} />}
-                    </span>
-                  </span>
-                </span>
-                <span className={`text-right text-sm ${b > 0 ? 'text-owed' : b < 0 ? 'text-owes' : 'text-ink-soft'}`}>
-                  {b === 0 ? (
-                    'settled'
-                  ) : (
-                    <>
-                      {m.id === group.meId ? (b > 0 ? 'get back ' : 'owe ') : b > 0 ? 'gets back ' : 'owes '}
-                      <Money paise={Math.abs(b)} className="font-semibold" />
-                    </>
-                  )}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
-
-      <section aria-labelledby="settle-heading">
-        <h2 id="settle-heading" className="mb-1 font-bold">
-          Settle up
-        </h2>
-        {transfers.length === 0 ? (
-          <div className={`${card} relative overflow-hidden px-4 py-6 text-center`}>
-            {group.settlements.length > 0 && <Confetti />}
-            <p className="text-3xl" aria-hidden="true">
-              {group.settlements.length > 0 ? '🎉' : '🤝'}
-            </p>
-            <p className="mt-1 font-bold">{group.settlements.length > 0 ? 'All square!' : 'All settled up'}</p>
-            <p className="text-sm text-ink-soft">Nothing to pay.</p>
-          </div>
-        ) : (
-          <>
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
-              {iouCount > transfers.length && (
-                <span className="rounded-full border-2 border-edge bg-paper px-3 py-1 font-semibold">
-                  <span className="text-ink-soft line-through">{iouCount} IOUs</span> → {transfers.length}{' '}
-                  {transfers.length === 1 ? 'payment' : 'payments'}
-                </span>
-              )}
-              <button
-                type="button"
-                className="rounded-full border-2 border-edge bg-pop px-3 py-1 font-semibold text-[#1c1b19]"
-                onClick={() => setExplaining(true)}
-              >
-                ✓ Proven minimum · Why?
-              </button>
-              {greedyCount > transfers.length && (
-                <span className="text-ink-soft">
-                  The usual shortcut needs {greedyCount}; this needs {transfers.length}.
-                </span>
-              )}
-              <button type="button" className={`${button.ghost} ml-auto`} onClick={shareSummary}>
-                Share on WhatsApp
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {transfers.map((t) => (
-                <PaymentCard
-                  key={keyOf(t)}
-                  group={group}
-                  transfer={t}
-                  stamping={stamping === keyOf(t)}
-                  onMarkPaid={() => markPaid(t)}
-                />
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
-
-      <div className="grid grid-cols-2 gap-2">
-        <a href={href('g', group.id, 'report')} className={button.secondary}>
-          Report (PDF)
-        </a>
-        <button type="button" className={button.secondary} onClick={() => downloadCsv(group)}>
-          Download CSV
-        </button>
-      </div>
-
-      {group.settlements.length > 0 && (
-        <section aria-labelledby="paid-heading">
-          <h2 id="paid-heading" className="mb-2 font-bold">
-            Payments made
+    // Desktop: settle-up on the left, charts on the right
+    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="min-w-0 space-y-6">
+        <section aria-labelledby="balances-heading">
+          <h2 id="balances-heading" className="mb-2 font-bold">
+            Balances
           </h2>
           <ul className={`${card} divide-y divide-line`}>
-            {group.settlements.map((s) => (
-              <li key={s.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
-                <span className="stamp-static" aria-hidden="true">
-                  PAID
-                </span>
-                <span className="flex-1">
-                  {nameOf(s.from)} paid {s.to === group.meId ? 'you' : nameOf(s.to)} <Money paise={s.paise} />
-                </span>
-                <button type="button" className={button.ghost} onClick={() => deleteSettlement(group.id, s.id)}>
-                  Undo
-                </button>
-              </li>
-            ))}
+            {group.members.map((m) => {
+              const b = balances[m.id] ?? 0
+              return (
+                <li key={m.id} className="flex items-center gap-3 px-4 py-3">
+                  <Avatar member={m} />
+                  <span className="flex-1 font-medium">
+                    {nameOf(m.id)}
+                    {/* Who's up and who's down, at a glance */}
+                    <span aria-hidden="true" className="mt-1 flex h-1.5 w-full max-w-40">
+                      <span className="flex flex-1 justify-end">
+                        {b < 0 && <span className="h-full rounded-l-full bg-owes" style={{ width: `${(-b / biggest) * 100}%` }} />}
+                      </span>
+                      <span className="w-px bg-line" />
+                      <span className="flex-1">
+                        {b > 0 && <span className="block h-full rounded-r-full bg-owed" style={{ width: `${(b / biggest) * 100}%` }} />}
+                      </span>
+                    </span>
+                  </span>
+                  <span className={`text-right text-sm ${b > 0 ? 'text-owed' : b < 0 ? 'text-owes' : 'text-ink-soft'}`}>
+                    {b === 0 ? (
+                      'settled'
+                    ) : (
+                      <>
+                        {m.id === group.meId ? (b > 0 ? 'get back ' : 'owe ') : b > 0 ? 'gets back ' : 'owes '}
+                        <Money paise={Math.abs(b)} className="font-semibold" />
+                      </>
+                    )}
+                  </span>
+                </li>
+              )
+            })}
           </ul>
         </section>
-      )}
 
-      <SpendingPanel group={group} />
+        <section aria-labelledby="settle-heading">
+          <h2 id="settle-heading" className="mb-1 font-bold">
+            Settle up
+          </h2>
+          {transfers.length === 0 ? (
+            <div className={`${card} relative overflow-hidden px-4 py-6 text-center`}>
+              {group.settlements.length > 0 && <Confetti />}
+              <p className="text-3xl" aria-hidden="true">
+                {group.settlements.length > 0 ? '🎉' : '🤝'}
+              </p>
+              <p className="mt-1 font-bold">{group.settlements.length > 0 ? 'All square!' : 'All settled up'}</p>
+              <p className="text-sm text-ink-soft">Nothing to pay.</p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+                {iouCount > transfers.length && (
+                  <span className="rounded-full border-2 border-edge bg-paper px-3 py-1 font-semibold">
+                    <span className="text-ink-soft line-through">{iouCount} IOUs</span> → {transfers.length}{' '}
+                    {transfers.length === 1 ? 'payment' : 'payments'}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className="rounded-full border-2 border-edge bg-pop px-3 py-1 font-semibold text-[#1c1b19]"
+                  onClick={() => setExplaining(true)}
+                >
+                  ✓ Proven minimum · Why?
+                </button>
+                {greedyCount > transfers.length && (
+                  <span className="text-ink-soft">
+                    The usual shortcut needs {greedyCount}; this needs {transfers.length}.
+                  </span>
+                )}
+                <button type="button" className={`${button.ghost} ml-auto`} onClick={shareSummary}>
+                  Share on WhatsApp
+                </button>
+              </div>
+              <ul className="space-y-2">
+                {transfers.map((t) => (
+                  <PaymentCard
+                    key={keyOf(t)}
+                    group={group}
+                    transfer={t}
+                    stamping={stamping === keyOf(t)}
+                    onMarkPaid={() => markPaid(t)}
+                  />
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+
+        <div className="grid grid-cols-2 gap-2">
+          <a href={href('g', group.id, 'report')} className={button.secondary}>
+            Report (PDF)
+          </a>
+          <button type="button" className={button.secondary} onClick={() => downloadCsv(group)}>
+            Download CSV
+          </button>
+        </div>
+
+        {group.settlements.length > 0 && (
+          <section aria-labelledby="paid-heading">
+            <h2 id="paid-heading" className="mb-2 font-bold">
+              Payments made
+            </h2>
+            <ul className={`${card} divide-y divide-line`}>
+              {group.settlements.map((s) => (
+                <li key={s.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                  <span className="stamp-static" aria-hidden="true">
+                    PAID
+                  </span>
+                  <span className="flex-1">
+                    {nameOf(s.from)} paid {s.to === group.meId ? 'you' : nameOf(s.to)} <Money paise={s.paise} />
+                  </span>
+                  <button type="button" className={button.ghost} onClick={() => deleteSettlement(group.id, s.id)}>
+                    Undo
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+      </div>
+      <div className="min-w-0">
+        <SpendingPanel group={group} />
+      </div>
 
       <Sheet open={explaining} onClose={() => setExplaining(false)} title="Why this is the fewest">
         <div className="space-y-3 text-sm leading-relaxed">

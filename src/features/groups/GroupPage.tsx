@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, type FormEvent } from 'react'
 import { Avatar, Money, Sheet } from '../../components/ui'
 import { button, card, input } from '../../components/styles'
+import { computeBalances } from '../../core/balances'
 import type { Group, Member } from '../../core/types'
 import { href, navigate } from '../../lib/router'
 import { useGroup, useGroups } from '../../store/groups'
@@ -19,7 +20,7 @@ const AvatarPicker = lazy(() => import('./AvatarPicker'))
 export function GroupPage({ groupId }: { groupId: string }) {
   const group = useGroup(groupId)
   const [tab, setTab] = useState<Tab>('Expenses')
-  const [editing, setEditing] = useState(false)
+  const [sheet, setSheet] = useState<'share' | 'settings' | null>(null)
 
   if (!group) {
     return (
@@ -35,7 +36,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
   const spent = group.expenses.reduce((sum, e) => sum + e.amountPaise, 0)
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-16 pt-4">
+    <main className="mx-auto max-w-3xl px-4 pb-16 pt-4 lg:max-w-6xl">
       <a href={href()} className={button.ghost}>
         ← All groups
       </a>
@@ -49,9 +50,14 @@ export function GroupPage({ groupId }: { groupId: string }) {
               <Money paise={spent} /> spent
             </p>
           </div>
-          <button type="button" className={button.ghost} onClick={() => setEditing(true)}>
-            Share · Edit
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            <button type="button" className={`${button.secondary} text-sm`} onClick={() => setSheet('share')}>
+              Share
+            </button>
+            <button type="button" className={button.ghost} onClick={() => setSheet('settings')}>
+              Edit
+            </button>
+          </div>
         </div>
       </header>
 
@@ -89,7 +95,10 @@ export function GroupPage({ groupId }: { groupId: string }) {
         {tab === 'Members' && <MembersPanel group={group} />}
       </section>
 
-      <EditGroupSheet group={group} open={editing} onClose={() => setEditing(false)} />
+      <EditGroupSheet group={group} open={sheet === 'settings'} onClose={() => setSheet(null)} />
+      <Sheet open={sheet === 'share'} onClose={() => setSheet(null)} title={`Share ${group.name}`}>
+        <ShareGroup group={group} />
+      </Sheet>
     </main>
   )
 }
@@ -100,6 +109,7 @@ function MembersPanel({ group }: { group: Group }) {
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
   const [styling, setStyling] = useState<Member | null>(null)
+  const balances = computeBalances(group)
 
   function add(event: FormEvent) {
     event.preventDefault()
@@ -122,13 +132,20 @@ function MembersPanel({ group }: { group: Group }) {
               type="button"
               aria-label={`Change ${m.name}'s avatar`}
               onClick={() => setStyling(m)}
-              className="rounded-full transition hover:scale-105"
+              className="relative rounded-full transition hover:scale-105"
             >
               <Avatar member={m} size={36} />
+              <span aria-hidden="true" className="absolute -bottom-1 -right-1 grid size-4 place-items-center rounded-full border border-edge bg-pop text-[9px] text-[#1c1b19]">
+                ✎
+              </span>
             </button>
             <span className="flex-1 font-medium">
               {m.name}
               {m.id === group.meId && <span className="ml-2 text-xs text-ink-soft">(you)</span>}
+              <span className={`block text-xs ${balances[m.id] > 0 ? 'text-owed' : balances[m.id] < 0 ? 'text-owes' : 'text-ink-soft'}`}>
+                {balances[m.id] > 0 ? 'gets back ' : balances[m.id] < 0 ? 'owes ' : 'settled'}
+                {balances[m.id] !== 0 && <Money paise={Math.abs(balances[m.id])} />}
+              </span>
             </span>
             <button
               type="button"
@@ -192,7 +209,6 @@ function EditGroupSheet({ group, open, onClose }: { group: Group; open: boolean;
         <button type="submit" className={`${button.primary} w-full`}>
           Save
         </button>
-        <ShareGroup group={group} />
         <button type="button" className={`${button.danger} w-full`} onClick={remove}>
           Delete group
         </button>
