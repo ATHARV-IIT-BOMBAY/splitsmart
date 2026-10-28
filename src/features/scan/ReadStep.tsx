@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { button } from '../../components/styles'
 import { FULL, type CropBox } from '../../core/imageops'
 import { parseReceipt, type OcrLine } from '../../core/parse'
@@ -7,6 +7,8 @@ import { readReceipt, type OcrProgress } from '../../lib/ocr'
 
 type Corner = 'tl' | 'tr' | 'bl' | 'br'
 const CORNERS: Corner[] = ['tl', 'tr', 'bl', 'br']
+const CORNER_NAMES: Record<Corner, string> = { tl: 'Top-left', tr: 'Top-right', bl: 'Bottom-left', br: 'Bottom-right' }
+const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 /** Smallest crop, as a fraction of the photo, so the box can't collapse. */
 const MIN_CROP = 0.12
 
@@ -49,6 +51,33 @@ export function ReadStep({
     }
   }, [photo, rotation, straighten])
 
+  /** Moves one corner to where `to` says, given the corner's current spot. */
+  function moveCorner(corner: Corner, to: (x: number, y: number) => [number, number]) {
+    setCrop((c) => {
+      const [x, y] = to(corner[1] === 'l' ? c.x0 : c.x1, corner[0] === 't' ? c.y0 : c.y1)
+      const fx = Math.min(1, Math.max(0, x))
+      const fy = Math.min(1, Math.max(0, y))
+      return {
+        x0: corner[1] === 'l' ? Math.min(fx, c.x1 - MIN_CROP) : c.x0,
+        x1: corner[1] === 'r' ? Math.max(fx, c.x0 + MIN_CROP) : c.x1,
+        y0: corner[0] === 't' ? Math.min(fy, c.y1 - MIN_CROP) : c.y0,
+        y1: corner[0] === 'b' ? Math.max(fy, c.y0 + MIN_CROP) : c.y1,
+      }
+    })
+    setAutoCropped(false)
+  }
+
+  // Arrow keys nudge a focused corner, so the crop works without a mouse
+  function nudge(corner: Corner) {
+    return (event: KeyboardEvent<HTMLSpanElement>) => {
+      const step = event.shiftKey ? 0.1 : 0.02
+      const [dx, dy] = ARROWS[event.key] ?? [0, 0]
+      if (!dx && !dy) return
+      event.preventDefault()
+      moveCorner(corner, (x, y) => [x + dx * step, y + dy * step])
+    }
+  }
+
   function drag(corner: Corner) {
     return (event: PointerEvent<HTMLSpanElement>) => {
       event.preventDefault()
@@ -61,15 +90,7 @@ export function ReadStep({
       const move = (e: globalThis.PointerEvent) => {
         const rect = frame.current?.getBoundingClientRect()
         if (!rect) return
-        const fx = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
-        const fy = Math.min(1, Math.max(0, (e.clientY - rect.top) / rect.height))
-        setCrop((c) => ({
-          x0: corner[1] === 'l' ? Math.min(fx, c.x1 - MIN_CROP) : c.x0,
-          x1: corner[1] === 'r' ? Math.max(fx, c.x0 + MIN_CROP) : c.x1,
-          y0: corner[0] === 't' ? Math.min(fy, c.y1 - MIN_CROP) : c.y0,
-          y1: corner[0] === 'b' ? Math.max(fy, c.y0 + MIN_CROP) : c.y1,
-        }))
-        setAutoCropped(false)
+        moveCorner(corner, () => [(e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height])
       }
       const stop = () => {
         handle.removeEventListener('pointermove', move)
@@ -153,8 +174,11 @@ export function ReadStep({
                 CORNERS.map((corner) => (
                   <span
                     key={corner}
-                    aria-hidden="true"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${CORNER_NAMES[corner]} corner of the crop. Move it with the arrow keys.`}
                     onPointerDown={drag(corner)}
+                    onKeyDown={nudge(corner)}
                     className="absolute size-7 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-2 border-edge bg-accent"
                     style={{ left: corner[1] === 'l' ? 0 : '100%', top: corner[0] === 't' ? 0 : '100%' }}
                   />

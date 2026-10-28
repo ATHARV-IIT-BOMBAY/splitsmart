@@ -61,8 +61,19 @@ export function GroupPage({ groupId }: { groupId: string }) {
             key={t}
             type="button"
             role="tab"
+            id={`tab-${t}`}
             aria-selected={tab === t}
+            aria-controls="tab-panel"
+            tabIndex={tab === t ? 0 : -1}
             onClick={() => setTab(t)}
+            onKeyDown={(e) => {
+              // Arrow keys move between tabs, as screen reader users expect
+              const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
+              if (!step) return
+              const next = TABS[(TABS.indexOf(t) + step + TABS.length) % TABS.length]
+              setTab(next)
+              document.getElementById(`tab-${next}`)?.focus()
+            }}
             className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
               tab === t ? 'bg-pop text-[#1c1b19] ring-2 ring-edge' : 'text-ink-soft hover:text-ink'
             }`}
@@ -72,7 +83,7 @@ export function GroupPage({ groupId }: { groupId: string }) {
         ))}
       </div>
 
-      <section role="tabpanel" aria-label={tab} className="mt-4">
+      <section role="tabpanel" id="tab-panel" aria-labelledby={`tab-${tab}`} className="mt-4">
         {tab === 'Expenses' && <ExpenseList group={group} />}
         {tab === 'Balances' && <BalancesPanel group={group} />}
         {tab === 'Members' && <MembersPanel group={group} />}

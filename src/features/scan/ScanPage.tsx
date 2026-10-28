@@ -50,6 +50,7 @@ export function ScanPage({ groupId }: { groupId: string }) {
       <a href={href('g', group.id)} className={button.ghost}>
         ← {group.name}
       </a>
+      <h1 className="sr-only">Scan a receipt</h1>
       <ol className="my-4 flex items-center gap-2 text-sm" aria-label="Steps">
         {STEPS.map((label, i) => (
           <li key={label} aria-current={i === current ? 'step' : undefined} className="flex items-center gap-2">
