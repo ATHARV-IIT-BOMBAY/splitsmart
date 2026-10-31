@@ -5,6 +5,7 @@ Scan a hostel receipt, fix what the scanner got wrong, assign items to the peopl
 Built by **Team Web Architects, Hostel 18** for Web Brawl GC 2026.
 
 **Live app:** https://atharv-iit-bombay.github.io/splitsmart/
+**Demo video:** https://youtu.be/BSfZRLivPok
 
 **Lighthouse** (live site): laptop **100 · 100 · 100 · 100**, phone **96 · 100 · 100 · 100** (performance · accessibility · best practices · SEO). 125 unit tests, MIT licensed.
 
